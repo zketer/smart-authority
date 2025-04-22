@@ -24,16 +24,14 @@ spring:
 
 mybatis-plus:
   mapper-locations: classpath*:/mapper/**/*.xml
-  type-aliases-package: free.tools.mypermission.entity
+  type-aliases-package: smart.authority.web.model.entity
   configuration:
     map-underscore-to-camel-case: true
     log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
   global-config:
     db-config:
       id-type: auto
-      logic-delete-field: deleted
-      logic-delete-value: 1
-      logic-not-delete-value: 0
+      table-prefix: 
 
 springdoc:
   api-docs:
@@ -43,8 +41,18 @@ springdoc:
     operationsSorter: method
 
 jwt:
-  secret: myPermissionSecretKey
-  expiration: 86400000
+  secret: your-secret-key-should-be-very-long-and-secure
+  expiration: 86400000  # 24小时，单位：毫秒
+
+security:
+  whitelist:
+    - /api/auth/**
+    - /api-docs/**
+    - /swagger-ui/**
+    - /swagger-ui.html
+    - /v3/api-docs/**
+    - /webjars/**
+    - /favicon.ico
 #
 #alibaba:
 #  cloud:

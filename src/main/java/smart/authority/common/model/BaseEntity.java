@@ -10,15 +10,21 @@ import java.time.LocalDateTime;
 
 @Data
 public class BaseEntity {
-    @TableLogic
-    @Schema(description = "是否删除")
-    private Integer deleted;
 
     @TableField(fill = FieldFill.INSERT)
     @Schema(description = "创建时间")
-    private LocalDateTime createdTime;
+    private LocalDateTime createTime;
 
     @TableField(fill = FieldFill.INSERT_UPDATE)
     @Schema(description = "更新时间")
-    private LocalDateTime updatedTime;
+    private LocalDateTime updateTime;
+
+    @Schema(description = "创建人ID")
+    private Integer createBy;
+
+    @Schema(description = "更新人ID")
+    private Integer updateBy;
+
+    @Schema(description = "租户ID")
+    private Integer tenantId;
 }
