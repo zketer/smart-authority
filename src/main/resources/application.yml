@@ -41,7 +41,7 @@ springdoc:
     operationsSorter: method
 
 jwt:
-  secret: your-secret-key-should-be-very-long-and-secure
+  secret: "your-256-bit-secret-key-for-jwt-token-signing-and-verification"
   expiration: 86400000  # 24小时，单位：毫秒
 
 security:
