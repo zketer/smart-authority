@@ -42,10 +42,6 @@ public class Permission extends BaseEntity {
     @Schema(description = "权限描述")
     private String description;
 
-    @TableLogic
-    @Schema(description = "是否删除")
-    private Integer deleted;
-
     @TableField(exist = false)
     @Schema(description = "拥有该权限的角色")
     private Set<Role> roles;
