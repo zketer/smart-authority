@@ -8,6 +8,9 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 
+/**
+ * @author lynn
+ */
 @Data
 @EqualsAndHashCode(callSuper = true)
 @TableName("user")
@@ -26,9 +29,15 @@ public class User extends BaseEntity {
     @Schema(description = "电话")
     private String phone;
 
-    @Schema(description = "租户ID")
-    private Long tenantId;
+    @Schema(description = "头像")
+    private String avatar;
+
+    @Schema(description = "状态, open-启用 close-禁用")
+    private String status;
+
+    @Schema(description = "admin 是： admin 不是 not admin")
+    private String isAdmin;
 
     @Schema(description = "部门ID")
-    private Long departmentId;
+    private Integer departmentId;
 }

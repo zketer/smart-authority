@@ -6,6 +6,7 @@ import smart.authority.web.model.common.BaseReq;
 
 /**
  * 查询租户请求
+ * @author lynn
  */
 @Data
 @EqualsAndHashCode(callSuper = true)

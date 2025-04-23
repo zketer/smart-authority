@@ -1,8 +1,12 @@
 package smart.authority.web.controller;
 
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import jakarta.validation.Valid;
 import smart.authority.common.model.ApiResponse;
-import smart.authority.web.model.req.UserCreateReq;
+import smart.authority.web.model.req.tenant.TenantQueryReq;
+import smart.authority.web.model.req.user.UserCreateReq;
+import smart.authority.web.model.req.user.UserQueryReq;
+import smart.authority.web.model.req.user.UserUpdateReq;
 import smart.authority.web.model.resp.UserResp;
 import smart.authority.web.service.UserService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -37,17 +41,22 @@ public class UserController {
 
     @Operation(summary = "分页查询用户")
     @GetMapping
-    public ApiResponse<Page<UserResp>> pageUsers(
-            @RequestParam(defaultValue = "1") Integer current,
-            @RequestParam(defaultValue = "10") Integer size,
-            @RequestParam(required = false) String username) {
-        return ApiResponse.success(userService.pageUsers(new Page<>(current, size), username));
+    public ApiResponse<Page<UserResp>> pageUsers(@Valid UserQueryReq req) {
+        return ApiResponse.success(userService.pageUsers(req));
     }
 
     @Operation(summary = "删除用户")
     @DeleteMapping("/{id}")
     public ApiResponse<Void> deleteUser(@PathVariable Integer id) {
         userService.deleteUser(id);
+        return ApiResponse.success(null);
+    }
+
+    @Operation(summary = "更新用户")
+    @PutMapping("/{id}")
+    public ApiResponse<Void> updateUser(@PathVariable Integer id, @Validated @RequestBody UserUpdateReq req) {
+        req.setId(id);
+        userService.updateUser(req);
         return ApiResponse.success(null);
     }
 }

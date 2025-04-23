@@ -6,6 +6,9 @@ import lombok.Data;
 
 import java.time.LocalDateTime;
 
+/**
+ * @author lynn
+ */
 @Data
 public class BaseEntity {
 
@@ -26,4 +29,7 @@ public class BaseEntity {
 
     @Schema(description = "更新人")
     private Integer updateBy;
+
+    @Schema(description = "租户ID")
+    private Integer tenantId;
 }

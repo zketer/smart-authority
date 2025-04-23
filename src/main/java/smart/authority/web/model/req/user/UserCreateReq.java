@@ -1,15 +1,16 @@
-package smart.authority.web.model.req;
+package smart.authority.web.model.req.user;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
 import lombok.Data;
+import smart.authority.web.model.common.BaseReq;
 
 
 @Data
 @Schema(description = "创建用户请求")
-public class UserCreateReq {
+public class UserCreateReq extends BaseReq {
     @NotBlank(message = "用户名不能为空")
     @Size(min = 3, max = 20, message = "用户名长度必须在3-20之间")
     @Schema(description = "用户名")
@@ -28,8 +29,12 @@ public class UserCreateReq {
     private String phone;
 
     @Schema(description = "部门ID")
-    private Long departmentId;
+    private Integer departmentId;
 
-    @Schema(description = "租户ID")
-    private Long tenantId;
+    @Schema(description = "头像")
+    private String avatar;
+
+    @Schema(description = "状态, open-启用 close-禁用")
+    private String status;
+
 }

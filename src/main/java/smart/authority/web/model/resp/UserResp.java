@@ -2,14 +2,18 @@ package smart.authority.web.model.resp;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
+import smart.authority.web.model.common.BaseResp;
 
 import java.time.LocalDateTime;
 
+/**
+ * @author lynn
+ */
+@EqualsAndHashCode(callSuper = true)
 @Data
 @Schema(description = "用户响应")
-public class UserResp {
-    @Schema(description = "用户ID")
-    private Long id;
+public class UserResp extends BaseResp {
 
     @Schema(description = "用户名")
     private String username;
@@ -21,13 +25,10 @@ public class UserResp {
     private String phone;
 
     @Schema(description = "部门ID")
-    private Long departmentId;
+    private Integer departmentId;
 
     @Schema(description = "部门名称")
     private String departmentName;
-
-    @Schema(description = "租户ID")
-    private Long tenantId;
 
     @Schema(description = "租户名称")
     private String tenantName;

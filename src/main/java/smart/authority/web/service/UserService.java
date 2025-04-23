@@ -3,20 +3,22 @@ package smart.authority.web.service;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.IService;
 import smart.authority.web.model.entity.User;
-import smart.authority.web.model.req.UserCreateReq;
+import smart.authority.web.model.req.user.UserCreateReq;
+import smart.authority.web.model.req.user.UserQueryReq;
+import smart.authority.web.model.req.user.UserUpdateReq;
 import smart.authority.web.model.resp.UserResp;
 
 public interface UserService extends IService<User> {
     /**
      * 创建用户
      *
-     * @param req 用户创建请求
+     * @param req 创建用户请求
      * @return 用户响应
      */
     UserResp createUser(UserCreateReq req);
 
     /**
-     * 获取用户详情
+     * 根据ID获取用户
      *
      * @param id 用户ID
      * @return 用户响应
@@ -26,11 +28,10 @@ public interface UserService extends IService<User> {
     /**
      * 分页查询用户
      *
-     * @param page     分页参数
-     * @param username 用户名
-     * @return 分页用户响应
+     * @param req 查询请求
+     * @return 分页结果
      */
-    Page<UserResp> pageUsers(Page<User> page, String username);
+    Page<UserResp> pageUsers(UserQueryReq req);
 
     /**
      * 删除用户
@@ -38,4 +39,11 @@ public interface UserService extends IService<User> {
      * @param id 用户ID
      */
     void deleteUser(Integer id);
+
+    /**
+     * 更新用户
+     *
+     * @param req 更新用户请求
+     */
+    void updateUser(UserUpdateReq req);
 }
