@@ -17,7 +17,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
  * @author lynn
  */
 @RestController
-@RequestMapping("/smart-authority/v1.0/tenants")
+@RequestMapping("/tenants")
 @Tag(name = "TenantController", description = "租户相关接口")
 public class TenantController {
 

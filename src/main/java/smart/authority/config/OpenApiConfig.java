@@ -16,7 +16,6 @@ import org.springframework.http.MediaType;
 @Slf4j
 public class OpenApiConfig {
 
-
     @Value("${server.servlet.context-path:}")
     private String contextPath;
 
@@ -25,36 +24,20 @@ public class OpenApiConfig {
         log.info("contextPath: {}", contextPath);
         return openApi -> {
             Paths paths = openApi.getPaths();
-            Paths updatedPaths = new Paths(); // 用于存储更新后的路径
+            Paths updatedPaths = new Paths();
 
             paths.forEach((path, pathItem) -> {
-//                pathItem.readOperationsMap().forEach((httpMethod, operation) -> {
-//                    String originalOperationId = operation.getOperationId();
-//                    if (originalOperationId != null) {
-//                        // 更新 operationId，附加 HTTP 方法名称
-//                        operation.setOperationId(originalOperationId + "Using" + httpMethod.name());
-//                    }
-//                    if (operation.getRequestBody() != null && operation.getRequestBody().getContent() != null) {
-//                        if (!operation.getRequestBody().getContent().containsKey(MediaType.MULTIPART_FORM_DATA_VALUE)) {
-//                            // 如果没有 multipart/form-data，则添加
-//                            operation.getRequestBody().getContent().put(
-//                                    MediaType.MULTIPART_FORM_DATA_VALUE,
-//                                    operation.getRequestBody().getContent().values().iterator().next()
-//                            );
-//                        }
-//                    }
-//                });
-
-                // 为路径添加 context-path 前缀
-                String updatedPath = contextPath + path;
+                // 检查路径是否已经包含 contextPath
+                String updatedPath = path;
+                if (!path.startsWith(contextPath)) {
+                    updatedPath = contextPath + path;
+                }
                 log.info("Updated Path: {}", updatedPath);
-                updatedPaths.addPathItem(updatedPath, pathItem); // 添加到更新后的 Paths 对象
+                updatedPaths.addPathItem(updatedPath, pathItem);
             });
 
-            openApi.setPaths(updatedPaths); // 最后替换原有的 Paths
+            openApi.setPaths(updatedPaths);
         };
     }
-
-
 }
 
