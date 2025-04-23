@@ -24,12 +24,6 @@ public class Role extends BaseEntity {
     @Schema(description = "角色名称")
     private String name;
 
-    @Schema(description = "角色编码")
-    private String code;
-
-    @Schema(description = "状态：close-禁用，open-启用")
-    private String status;
-
     @Schema(description = "是否为管理员：admin-是，not admin-否")
     private String isAdmin;
 

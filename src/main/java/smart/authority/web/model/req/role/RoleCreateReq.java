@@ -20,14 +20,8 @@ public class RoleCreateReq extends BaseReq {
     @Schema(description = "角色名称")
     private String name;
 
-    @Schema(description = "角色编码")
-    private String code;
-
     @Schema(description = "角色描述")
     private String description;
-
-    @Schema(description = "角色状态：close-禁用 open-启用")
-    private String status;
 
     @Schema(description = "权限ID列表")
     private List<Integer> permissionIds;

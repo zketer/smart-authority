@@ -1,7 +1,12 @@
 package smart.authority.web.service.impl;
 
+import com.baomidou.mybatisplus.core.conditions.Wrapper;
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.baomidou.mybatisplus.core.toolkit.CollectionUtils;
+import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import smart.authority.common.exception.BusinessException;
 import smart.authority.common.exception.ErrorCode;
+import smart.authority.web.model.entity.Permission;
 import smart.authority.web.model.entity.Role;
 import smart.authority.web.model.entity.RolePermission;
 import smart.authority.web.model.entity.UserRole;
@@ -11,6 +16,7 @@ import smart.authority.web.mapper.UserRoleMapper;
 import smart.authority.web.model.req.role.RoleCreateReq;
 import smart.authority.web.model.req.role.RoleQueryReq;
 import smart.authority.web.model.req.role.RoleUpdateReq;
+import smart.authority.web.model.resp.PermissionResp;
 import smart.authority.web.model.resp.RoleResp;
 import smart.authority.web.service.PermissionService;
 import smart.authority.web.service.RoleService;
@@ -24,6 +30,8 @@ import org.springframework.util.StringUtils;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 @Service
@@ -88,7 +96,9 @@ public class RoleServiceImpl extends ServiceImpl<RoleMapper, Role> implements Ro
         }
 
         removeById(roleId);
-        rolePermissionMapper.deleteByRoleId(roleId);
+        LambdaQueryWrapper<RolePermission> rolePermissionWrapper = new LambdaQueryWrapper<>();
+        rolePermissionWrapper.eq(RolePermission::getRoleId, roleId);
+        rolePermissionMapper.delete(rolePermissionWrapper);
     }
 
     @Override
@@ -111,39 +121,89 @@ public class RoleServiceImpl extends ServiceImpl<RoleMapper, Role> implements Ro
     @Override
     public Page<RoleResp> pageRoles(RoleQueryReq req) {
         LambdaQueryWrapper<Role> queryWrapper = new LambdaQueryWrapper<>();
-        queryWrapper.like(StringUtils.hasText(req.getName()), Role::getName, req.getName())
-                   .like(StringUtils.hasText(req.getCode()), Role::getCode, req.getCode())
-                   .eq(req.getStatus() != null, Role::getStatus, req.getStatus());
+        queryWrapper.like(StringUtils.hasText(req.getName()), Role::getName, req.getName());
 
         Page<Role> page = new Page<>(req.getCurrent(), req.getSize());
         Page<Role> rolePage = page(page, queryWrapper);
 
         Page<RoleResp> respPage = new Page<>(rolePage.getCurrent(), rolePage.getSize(), rolePage.getTotal());
-        List<RoleResp> records = rolePage.getRecords().stream()
+        List<Role> roleList = rolePage.getRecords();
+
+        Set<Integer> roleIds = roleList.stream().map(Role::getId).collect(Collectors.toSet());
+        List<RolePermission> rolePermissions = new ArrayList<>();
+        if (CollectionUtils.isNotEmpty(roleIds)) {
+            LambdaQueryWrapper<RolePermission> lambdaQueryWrapper = new LambdaQueryWrapper<>();
+            lambdaQueryWrapper.in(RolePermission::getRoleId, roleIds);
+            rolePermissions = rolePermissionMapper.selectList(lambdaQueryWrapper);
+        }
+        Map<Integer, List<Integer>> rolePermissionMap = rolePermissions.stream().collect(
+                Collectors.groupingBy(RolePermission::getRoleId, Collectors.mapping(RolePermission::getPermissionId, Collectors.toList())));
+        Set<Integer> permissionIds = rolePermissions.stream().map(RolePermission::getPermissionId).collect(Collectors.toSet());
+        List<Permission> permissions = new ArrayList<>();
+        if (CollectionUtils.isNotEmpty(permissionIds)) {
+            QueryWrapper<Permission> query = Wrappers.query();
+            query.in("id", permissionIds);
+            permissions = permissionService.list(query);
+        }
+
+        List<PermissionResp> permissionRespList = new ArrayList<>();
+        for (Permission permission : permissions) {
+            PermissionResp permissionResp = new PermissionResp();
+            BeanUtils.copyProperties(permission, permissionResp);
+            permissionRespList.add(permissionResp);
+        }
+
+        List<RoleResp> records = roleList.stream()
                 .map(role -> {
                     RoleResp resp = new RoleResp();
                     BeanUtils.copyProperties(role, resp);
-                    resp.setPermissionIds(getRolePermissions(role.getId()));
+                    List<Integer> curPermissionIds = rolePermissionMap.getOrDefault(role.getId(), new ArrayList<>());
+                    resp.setPermissionIds(rolePermissionMap.getOrDefault(role.getId(), new ArrayList<>()));
+                    resp.setPermissions(permissionRespList.stream().filter(f -> curPermissionIds.contains(f.getId())).collect(Collectors.toSet()));
                     return resp;
                 })
                 .collect(Collectors.toList());
         respPage.setRecords(records);
-
         return respPage;
     }
 
     @Override
     public List<RoleResp> listRoles(RoleQueryReq req) {
         LambdaQueryWrapper<Role> queryWrapper = new LambdaQueryWrapper<>();
-        queryWrapper.like(StringUtils.hasText(req.getName()), Role::getName, req.getName())
-                   .like(StringUtils.hasText(req.getCode()), Role::getCode, req.getCode())
-                   .eq(req.getStatus() != null, Role::getStatus, req.getStatus());
+        queryWrapper.like(StringUtils.hasText(req.getName()), Role::getName, req.getName());
+        List<Role> roleList = list(queryWrapper);
 
-        return list(queryWrapper).stream()
+        Set<Integer> roleIds = roleList.stream().map(Role::getId).collect(Collectors.toSet());
+        List<RolePermission> rolePermissions = new ArrayList<>();
+        if (CollectionUtils.isNotEmpty(roleIds)) {
+            LambdaQueryWrapper<RolePermission> lambdaQueryWrapper = new LambdaQueryWrapper<>();
+            lambdaQueryWrapper.in(RolePermission::getRoleId, roleIds);
+            rolePermissions = rolePermissionMapper.selectList(lambdaQueryWrapper);
+        }
+        Map<Integer, List<Integer>> rolePermissionMap = rolePermissions.stream().collect(
+                Collectors.groupingBy(RolePermission::getRoleId, Collectors.mapping(RolePermission::getPermissionId, Collectors.toList())));
+        Set<Integer> permissionIds = rolePermissions.stream().map(RolePermission::getPermissionId).collect(Collectors.toSet());
+        List<Permission> permissions = new ArrayList<>();
+        if (CollectionUtils.isNotEmpty(permissionIds)) {
+            QueryWrapper<Permission> query = Wrappers.query();
+            query.in("id", permissionIds);
+            permissions = permissionService.list(query);
+        }
+
+        List<PermissionResp> permissionRespList = new ArrayList<>();
+        for (Permission permission : permissions) {
+            PermissionResp permissionResp = new PermissionResp();
+            BeanUtils.copyProperties(permission, permissionResp);
+            permissionRespList.add(permissionResp);
+        }
+
+        return roleList.stream()
                 .map(role -> {
                     RoleResp resp = new RoleResp();
                     BeanUtils.copyProperties(role, resp);
-                    resp.setPermissionIds(getRolePermissions(role.getId()));
+                    List<Integer> curPermissionIds = rolePermissionMap.getOrDefault(role.getId(), new ArrayList<>());
+                    resp.setPermissionIds(rolePermissionMap.getOrDefault(role.getId(), new ArrayList<>()));
+                    resp.setPermissions(permissionRespList.stream().filter(f -> curPermissionIds.contains(f.getId())).collect(Collectors.toSet()));
                     return resp;
                 })
                 .collect(Collectors.toList());
@@ -152,17 +212,17 @@ public class RoleServiceImpl extends ServiceImpl<RoleMapper, Role> implements Ro
     @Override
     @Transactional
     public void assignPermissions(Integer roleId, List<Integer> permissionIds) {
-        rolePermissionMapper.deleteByRoleId(roleId);
+        QueryWrapper<RolePermission> query = Wrappers.query();
+        query.eq("role_id", roleId);
+        rolePermissionMapper.delete(query);
         if (permissionIds != null && !permissionIds.isEmpty()) {
-            List<RolePermission> rolePermissions = permissionIds.stream()
-                    .map(permissionId -> {
-                        RolePermission rp = new RolePermission();
-                        rp.setRoleId(roleId);
-                        rp.setPermissionId(permissionId);
-                        return rp;
-                    })
-                    .collect(Collectors.toList());
-            rolePermissionMapper.batchInsert(rolePermissions);
+            for (Integer permissionId : permissionIds) {
+                RolePermission rp = new RolePermission();
+                rp.setRoleId(roleId);
+                rp.setPermissionId(permissionId);
+                rp.setTenantId(1);
+                rolePermissionMapper.insert(rp);
+            }
         }
     }
 

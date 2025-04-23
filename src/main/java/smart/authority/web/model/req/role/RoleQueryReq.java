@@ -21,10 +21,4 @@ public class RoleQueryReq extends BaseReq {
 
     @Schema(description = "角色名称")
     private String name;
-
-    @Schema(description = "角色编码")
-    private String code;
-
-    @Schema(description = "角色状态：0-禁用，1-启用")
-    private Integer status;
 } 

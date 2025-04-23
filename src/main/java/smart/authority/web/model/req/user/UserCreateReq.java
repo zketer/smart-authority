@@ -42,9 +42,9 @@ public class UserCreateReq extends BaseReq {
     @Schema(description = "部门ID")
     private Integer departmentId;
 
-    @NotNull(message = "租户ID不能为空")
+//    @NotNull(message = "租户ID不能为空")
     @Schema(description = "租户ID")
-    private Integer tenantId;
+    private Integer tenantId = 1;
 
     @Schema(description = "头像")
     private String avatar;

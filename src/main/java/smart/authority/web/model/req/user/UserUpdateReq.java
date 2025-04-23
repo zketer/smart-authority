@@ -20,7 +20,7 @@ import java.util.List;
 @Schema(description = "更新用户请求")
 public class UserUpdateReq extends BaseReq {
 
-    @NotNull(message = "用户ID不能为空")
+//    @NotNull(message = "用户ID不能为空")
     @Schema(description = "用户ID")
     private Integer id;
 
@@ -29,7 +29,7 @@ public class UserUpdateReq extends BaseReq {
     @Schema(description = "用户名")
     private String username;
 
-    @NotBlank(message = "密码不能为空")
+//    @NotBlank(message = "密码不能为空")
     @Size(min = 6, max = 20, message = "密码长度必须在6-20之间")
     @Schema(description = "密码")
     private String password;

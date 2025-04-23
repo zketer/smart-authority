@@ -88,14 +88,15 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
 
     @Override
     public Page<UserResp> pageUsers(UserQueryReq req) {
+        req.setTenantId(1);
         // 1. 构建查询条件
         LambdaQueryWrapper<User> wrapper = new LambdaQueryWrapper<>();
-        wrapper.eq(User::getTenantId, req.getTenantId())
-                .like(StringUtils.isNotBlank(req.getName()), User::getName, req.getName())
-                .like(StringUtils.isNotBlank(req.getUsername()), User::getUsername, req.getUsername())
-                .like(StringUtils.isNotBlank(req.getEmail()), User::getEmail, req.getEmail())
-                .like(StringUtils.isNotBlank(req.getPhone()), User::getPhone, req.getPhone())
-                .eq(StringUtils.isNotBlank(req.getStatus()), User::getStatus, req.getStatus());
+        wrapper.eq(User::getTenantId, req.getTenantId());
+        wrapper.like(StringUtils.isNotBlank(req.getName()), User::getName, req.getName());
+        wrapper.like(StringUtils.isNotBlank(req.getUsername()), User::getUsername, req.getUsername());
+        wrapper.like(StringUtils.isNotBlank(req.getEmail()), User::getEmail, req.getEmail());
+        wrapper.like(StringUtils.isNotBlank(req.getPhone()), User::getPhone, req.getPhone());
+        wrapper.eq(StringUtils.isNotBlank(req.getStatus()), User::getStatus, req.getStatus());
 
         // 2. 执行分页查询
         Page<User> page = new Page<>(req.getCurrent(), req.getSize());
