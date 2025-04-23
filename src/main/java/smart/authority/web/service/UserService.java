@@ -3,10 +3,12 @@ package smart.authority.web.service;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.IService;
 import smart.authority.web.model.entity.User;
+import smart.authority.web.model.req.user.LoginReq;
 import smart.authority.web.model.req.user.UserCreateReq;
 import smart.authority.web.model.req.user.UserQueryReq;
 import smart.authority.web.model.req.user.UserUpdateReq;
 import smart.authority.web.model.resp.UserResp;
+import smart.authority.web.model.resp.user.LoginResp;
 
 import java.util.List;
 
@@ -59,4 +61,19 @@ public interface UserService extends IService<User> {
      * @param roleIds 角色ID列表
      */
     void assignRoles(Integer userId, List<Integer> roleIds);
+
+    /**
+     * 用户登录
+     *
+     * @param req 登录请求
+     * @return 登录响应
+     */
+    LoginResp login(LoginReq req);
+
+    /**
+     * 用户登出
+     *
+     * @param token 访问令牌
+     */
+    void logout(String token);
 }

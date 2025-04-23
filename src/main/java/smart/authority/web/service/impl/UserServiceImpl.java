@@ -3,27 +3,33 @@ package smart.authority.web.service.impl;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
-import smart.authority.web.model.entity.User;
-import smart.authority.web.model.entity.UserRole;
+import jakarta.annotation.Resource;
+import org.springframework.beans.BeanUtils;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import smart.authority.common.exception.BusinessException;
+import smart.authority.common.exception.ErrorCode;
+import smart.authority.web.config.JwtConfig;
 import smart.authority.web.mapper.UserMapper;
 import smart.authority.web.mapper.UserRoleMapper;
+import smart.authority.web.model.entity.User;
+import smart.authority.web.model.entity.UserRole;
+import smart.authority.web.model.req.user.LoginReq;
 import smart.authority.web.model.req.user.UserCreateReq;
 import smart.authority.web.model.req.user.UserQueryReq;
 import smart.authority.web.model.req.user.UserUpdateReq;
 import smart.authority.web.model.resp.DepartmentResp;
 import smart.authority.web.model.resp.UserResp;
 import smart.authority.web.model.resp.tenant.TenantResp;
+import smart.authority.web.model.resp.user.LoginResp;
 import smart.authority.web.service.DepartmentService;
 import smart.authority.web.service.RoleService;
 import smart.authority.web.service.TenantService;
 import smart.authority.web.service.UserService;
+import smart.authority.web.util.PasswordEncoder;
 import org.apache.commons.lang3.StringUtils;
-import org.springframework.beans.BeanUtils;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-import smart.authority.common.exception.BusinessException;
-import smart.authority.common.exception.ErrorCode;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -38,6 +44,12 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
     private final RoleService roleService;
     private final DepartmentService departmentService;
     private final TenantService tenantService;
+
+    @Resource
+    private JwtConfig jwtConfig;
+
+    @Resource
+    private PasswordEncoder passwordEncoder;
 
     public UserServiceImpl(UserRoleMapper userRoleMapper,
                          RoleService roleService,
@@ -67,6 +79,8 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
         if (StringUtils.isBlank(user.getStatus())) {
             user.setStatus("open");
         }
+        // 加密密码
+        user.setPassword(passwordEncoder.encode(user.getPassword()));
         save(user);
 
         // 3. 分配角色
@@ -154,8 +168,10 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
         BeanUtils.copyProperties(req, user);
         // 保持租户ID不变
         user.setTenantId(existingUser.getTenantId());
-        // 如果密码为空，保持原密码不变
-        if (StringUtils.isBlank(req.getPassword())) {
+        // 如果密码不为空，则加密密码
+        if (StringUtils.isNotBlank(req.getPassword())) {
+            user.setPassword(passwordEncoder.encode(req.getPassword()));
+        } else {
             user.setPassword(existingUser.getPassword());
         }
 
@@ -188,6 +204,47 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
                     .toList();
             userRoles.forEach(userRoleMapper::insert);
         }
+    }
+
+    @Override
+    public LoginResp login(LoginReq req) {
+        // 1. 查询用户
+        LambdaQueryWrapper<User> wrapper = new LambdaQueryWrapper<>();
+        wrapper.eq(User::getUsername, req.getUsername());
+        User user = getOne(wrapper);
+        if (user == null) {
+            throw new BusinessException(ErrorCode.USERNAME_PASSWORD_ERROR);
+        }
+
+        // 2. 验证密码
+        if (!passwordEncoder.matches(req.getPassword(), user.getPassword())) {
+            throw new BusinessException(ErrorCode.USERNAME_PASSWORD_ERROR);
+        }
+
+        // 3. 检查用户状态
+        if ("close".equals(user.getStatus())) {
+            throw new BusinessException(ErrorCode.USER_ACCOUNT_DISABLED);
+        }
+
+        // 4. 生成 token
+        String accessToken = jwtConfig.generateToken(user.getUsername());
+        String refreshToken = jwtConfig.generateRefreshToken(user.getUsername());
+
+        // 5. 更新最后登录时间
+        user.setLastLoginTime(LocalDateTime.now());
+        updateById(user);
+
+        // 6. 返回登录信息
+        LoginResp resp = new LoginResp();
+        BeanUtils.copyProperties(user, resp);
+        resp.setAccessToken(accessToken);
+        resp.setRefreshToken(refreshToken);
+        return resp;
+    }
+
+    @Override
+    public void logout(String token) {
+        // 这里可以添加 token 黑名单等逻辑
     }
 
     private UserResp convertToUserResp(User user) {

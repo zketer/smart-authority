@@ -43,8 +43,9 @@ springdoc:
     operationsSorter: method
 
 jwt:
-  secret: myPermissionSecretKey
-  expiration: 86400000
+  secret: 8Zz5tw0Ionm3XPZZfN0NOml3z9FMfmpgXwovR9fp6ryDIoGRM8EPHAB6iHsc0fb # 至少256位的密钥
+  expiration: 86400000 # 24小时
+  refresh-expiration: 604800000 # 7天
 #
 #alibaba:
 #  cloud:
