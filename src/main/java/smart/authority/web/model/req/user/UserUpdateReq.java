@@ -3,10 +3,13 @@ package smart.authority.web.model.req.user;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import smart.authority.web.model.common.BaseReq;
+
+import java.util.List;
 
 /**
  * @author Lynn.z
@@ -17,6 +20,7 @@ import smart.authority.web.model.common.BaseReq;
 @Schema(description = "更新用户请求")
 public class UserUpdateReq extends BaseReq {
 
+    @NotNull(message = "用户ID不能为空")
     @Schema(description = "用户ID")
     private Integer id;
 
@@ -29,6 +33,9 @@ public class UserUpdateReq extends BaseReq {
     @Size(min = 6, max = 20, message = "密码长度必须在6-20之间")
     @Schema(description = "密码")
     private String password;
+
+    @Schema(description = "真实姓名")
+    private String name;
 
     @Email(message = "邮箱格式不正确")
     @Schema(description = "邮箱")
@@ -43,7 +50,13 @@ public class UserUpdateReq extends BaseReq {
     @Schema(description = "头像")
     private String avatar;
 
-    @Schema(description = "状态, open-启用 close-禁用")
+    @Schema(description = "用户状态：open-启用，close-禁用")
     private String status;
+
+    @Schema(description = "是否为管理员：admin-是，not admin-否")
+    private String isAdmin;
+
+    @Schema(description = "角色ID列表")
+    private List<Integer> roleIds;
 
 }

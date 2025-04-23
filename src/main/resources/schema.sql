@@ -45,7 +45,8 @@ CREATE TABLE IF NOT EXISTS user (
     phone VARCHAR(20) COMMENT '手机号',
     avatar VARCHAR(255) COMMENT '头像',
     gender TINYINT DEFAULT 0 COMMENT '性别：0-未知，1-男，2-女',
-    status TINYINT DEFAULT 1 COMMENT '状态：0-禁用，1-启用',
+    status VARCHAR(10) DEFAULT 'open' COMMENT '状态：close-禁用，open-启用',
+    is_admin VARCHAR(10) DEFAULT 'not admin' COMMENT '是否为管理员：admin-是，not admin-否',
     last_login_time DATETIME COMMENT '最后登录时间',
     created_at DATETIME DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
     updated_at DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
@@ -115,3 +116,18 @@ CREATE TABLE IF NOT EXISTS role_permission (
     INDEX idx_permission_id (permission_id),
     INDEX idx_tenant_id (tenant_id)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='角色权限关联表';
+
+-- 用户行为日志表
+CREATE TABLE IF NOT EXISTS user_behavior_log (
+    id BIGINT AUTO_INCREMENT PRIMARY KEY COMMENT '日志ID',
+    user_id BIGINT NOT NULL COMMENT '用户ID',
+    tenant_id BIGINT NOT NULL COMMENT '租户ID',
+    feature VARCHAR(50) COMMENT '功能名称',
+    page VARCHAR(50) COMMENT '页面名称',
+    action VARCHAR(50) COMMENT '操作类型',
+    duration INT COMMENT '停留时长(秒)',
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+    INDEX idx_user_id (user_id),
+    INDEX idx_tenant_id (tenant_id),
+    INDEX idx_created_at (created_at)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='用户行为日志表';

@@ -1,28 +1,34 @@
 package smart.authority.web.service;
 
-import smart.authority.web.model.entity.Role;
-import com.baomidou.mybatisplus.extension.service.IService;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import com.baomidou.mybatisplus.extension.service.IService;
+import smart.authority.web.model.entity.Role;
+import smart.authority.web.model.req.role.RoleCreateReq;
+import smart.authority.web.model.req.role.RoleQueryReq;
+import smart.authority.web.model.req.role.RoleUpdateReq;
+import smart.authority.web.model.resp.RoleResp;
 
 import java.util.List;
-import java.util.Set;
 
+/**
+ * @author lynn
+ */
 public interface RoleService extends IService<Role> {
+
     /**
      * 创建角色
      *
-     * @param role 角色信息
-     * @return 创建的角色
+     * @param req 创建角色请求
+     * @return 角色响应
      */
-    Role createRole(Role role);
+    void createRole(RoleCreateReq req);
 
     /**
-     * 更新角色信息
+     * 更新角色
      *
-     * @param role 角色信息
-     * @return 更新后的角色
+     * @param req 更新角色请求
      */
-    Role updateRole(Role role);
+    void updateRole(RoleUpdateReq req);
 
     /**
      * 删除角色
@@ -32,34 +38,33 @@ public interface RoleService extends IService<Role> {
     void deleteRole(Integer roleId);
 
     /**
-     * 获取角色信息
+     * 获取角色详情
      *
      * @param roleId 角色ID
-     * @return 角色信息
+     * @return 角色响应
      */
-    Role getRole(Integer roleId);
+    RoleResp getRoleById(Integer roleId);
 
     /**
-     * 分页查询角色列表
+     * 分页查询角色
      *
-     * @param page 分页参数
-     * @param name 角色名称（可选）
-     * @return 分页后的角色列表
+     * @param req 查询请求
+     * @return 分页角色响应
      */
-    Page<Role> pageRoles(Page<Role> page, String name);
+    Page<RoleResp> pageRoles(RoleQueryReq req);
 
     /**
-     * 查询所有角色列表
+     * 查询角色列表
      *
-     * @param name 角色名称（可选）
-     * @return 角色列表
+     * @param req 查询请求
+     * @return 角色响应列表
      */
-    List<Role> listRoles(String name);
+    List<RoleResp> listRoles(RoleQueryReq req);
 
     /**
-     * 为角色分配权限
+     * 分配权限
      *
-     * @param roleId        角色ID
+     * @param roleId 角色ID
      * @param permissionIds 权限ID列表
      */
     void assignPermissions(Integer roleId, List<Integer> permissionIds);
@@ -73,19 +78,19 @@ public interface RoleService extends IService<Role> {
     List<Integer> getRolePermissions(Integer roleId);
 
     /**
-     * 检查角色名是否已存在
+     * 检查角色名称是否存在
      *
-     * @param name   角色名
-     * @param roleId 当前角色ID（可选，用于更新时排除自身）
+     * @param name 角色名称
+     * @param roleId 角色ID（更新时使用）
      * @return 是否存在
      */
     boolean isRoleNameExists(String name, Integer roleId);
 
     /**
-     * 获取用户的所有角色
+     * 获取用户的角色列表
      *
      * @param userId 用户ID
-     * @return 用户的角色列表
+     * @return 角色响应列表
      */
-    List<Role> getRolesByUserId(Integer userId);
+    List<RoleResp> getRolesByUserId(Integer userId);
 }

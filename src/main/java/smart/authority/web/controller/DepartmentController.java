@@ -28,8 +28,9 @@ public class DepartmentController {
 
     @Operation(summary = "创建部门")
     @PostMapping
-    public ApiResponse<DepartmentResp> createDepartment(@Validated @RequestBody DepartmentCreateReq req) {
-        return ApiResponse.success(departmentService.createDepartment(req));
+    public ApiResponse<Void> createDepartment(@Validated @RequestBody DepartmentCreateReq req) {
+        departmentService.createDepartment(req);
+        return ApiResponse.success(null);
     }
 
     @Operation(summary = "获取部门详情")

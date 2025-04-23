@@ -1,4 +1,4 @@
-package smart.authority.common.model;
+package smart.authority.web.model.common;
 
 import com.baomidou.mybatisplus.annotation.*;
 import io.swagger.v3.oas.annotations.media.Schema;

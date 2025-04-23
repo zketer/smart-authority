@@ -8,22 +8,33 @@ import smart.authority.web.model.req.department.DepartmentQueryReq;
 import smart.authority.web.model.req.department.DepartmentUpdateReq;
 import smart.authority.web.model.resp.DepartmentResp;
 
+import java.util.List;
+
+/**
+ * @author lynn
+ */
 public interface DepartmentService extends IService<Department> {
+
     /**
      * 创建部门
      *
      * @param req 创建部门请求
-     * @return 部门响应
      */
-    DepartmentResp createDepartment(DepartmentCreateReq req);
+    void createDepartment(DepartmentCreateReq req);
 
     /**
-     * 根据ID获取部门
+     * 更新部门
+     *
+     * @param req 更新部门请求
+     */
+    void updateDepartment(DepartmentUpdateReq req);
+
+    /**
+     * 删除部门
      *
      * @param id 部门ID
-     * @return 部门响应
      */
-    DepartmentResp getDepartmentById(Integer id);
+    void deleteDepartment(Integer id);
 
     /**
      * 分页查询部门
@@ -34,16 +45,11 @@ public interface DepartmentService extends IService<Department> {
     Page<DepartmentResp> pageDepartments(DepartmentQueryReq req);
 
     /**
-     * 删除部门
+     * 获取部门详情
      *
      * @param id 部门ID
+     * @return 部门响应
      */
-    void deleteDepartment(Integer id);
+    DepartmentResp getDepartmentById(Integer id);
 
-    /**
-     * 更新部门
-     *
-     * @param req 更新部门请求
-     */
-    void updateDepartment(DepartmentUpdateReq req);
 } 

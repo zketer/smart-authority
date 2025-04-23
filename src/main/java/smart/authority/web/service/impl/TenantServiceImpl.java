@@ -19,10 +19,12 @@ import smart.authority.web.service.TenantService;
 
 import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 /**
  * 租户服务实现类
+ * @author lynn
  */
 @Service
 @RequiredArgsConstructor
@@ -33,7 +35,6 @@ public class TenantServiceImpl extends ServiceImpl<TenantMapper, Tenant> impleme
         // 构建查询条件
         LambdaQueryWrapper<Tenant> wrapper = new LambdaQueryWrapper<Tenant>()
                 .like(StringUtils.isNotBlank(req.getName()), Tenant::getName, req.getName())
-                .like(StringUtils.isNotBlank(req.getCode()), Tenant::getCode, req.getCode())
                 .eq(Objects.nonNull(req.getStatus()), Tenant::getStatus, req.getStatus());
 
         // 执行分页查询
@@ -57,15 +58,7 @@ public class TenantServiceImpl extends ServiceImpl<TenantMapper, Tenant> impleme
 
     @Override
     @Transactional(rollbackFor = Exception.class)
-    public TenantResp createTenant(TenantCreateReq req) {
-        // 检查租户编码是否已存在
-        if (StringUtils.isNotBlank(req.getCode())) {
-            Long count = this.count(new LambdaQueryWrapper<Tenant>()
-                    .eq(Tenant::getCode, req.getCode()));
-            if (count > 0) {
-                throw new RuntimeException("租户编码已存在");
-            }
-        }
+    public void createTenant(TenantCreateReq req) {
 
         // 设置默认值
         if (StringUtils.isBlank(req.getStatus())) {
@@ -82,25 +75,16 @@ public class TenantServiceImpl extends ServiceImpl<TenantMapper, Tenant> impleme
         this.save(tenant);
 
         // 转换为响应对象
-        return BeanCopyUtils.copyBean(tenant, TenantResp.class);
+        BeanCopyUtils.copyBean(tenant, TenantResp.class);
     }
 
     @Override
     @Transactional(rollbackFor = Exception.class)
-    public TenantResp updateTenant(TenantUpdateReq req) {
+    public void updateTenant(TenantUpdateReq req) {
         // 检查租户是否存在
         Tenant existingTenant = this.getById(req.getId());
         if (existingTenant == null) {
             throw new RuntimeException("租户不存在");
-        }
-
-        // 检查租户编码是否已被其他租户使用
-        if (StringUtils.isNotBlank(req.getCode()) && !req.getCode().equals(existingTenant.getCode())) {
-            Long count = this.count(new LambdaQueryWrapper<Tenant>()
-                    .eq(Tenant::getCode, req.getCode()));
-            if (count > 0) {
-                throw new RuntimeException("租户编码已存在");
-            }
         }
 
         // 如果是默认租户，不允许修改状态和默认标识
@@ -124,7 +108,7 @@ public class TenantServiceImpl extends ServiceImpl<TenantMapper, Tenant> impleme
         this.updateById(tenant);
 
         // 转换为响应对象
-        return BeanCopyUtils.copyBean(tenant, TenantResp.class);
+        BeanCopyUtils.copyBean(tenant, TenantResp.class);
     }
 
     @Override

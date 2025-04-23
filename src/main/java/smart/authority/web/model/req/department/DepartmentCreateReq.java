@@ -4,11 +4,13 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 import smart.authority.web.model.common.BaseReq;
 
 /**
  * @author lynn
  */
+@EqualsAndHashCode(callSuper = true)
 @Data
 @Schema(description = "创建部门请求")
 public class DepartmentCreateReq extends BaseReq {

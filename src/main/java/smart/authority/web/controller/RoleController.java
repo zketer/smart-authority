@@ -3,6 +3,10 @@ package smart.authority.web.controller;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import smart.authority.common.model.ApiResponse;
 import smart.authority.web.model.entity.Role;
+import smart.authority.web.model.req.role.RoleCreateReq;
+import smart.authority.web.model.req.role.RoleQueryReq;
+import smart.authority.web.model.req.role.RoleUpdateReq;
+import smart.authority.web.model.resp.RoleResp;
 import smart.authority.web.service.RoleService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -23,34 +27,33 @@ public class RoleController {
 
     @PostMapping
     @Operation(summary = "创建角色")
-    public ApiResponse<Role> createRole(@RequestBody Role role) {
-        return ApiResponse.success(roleService.createRole(role));
+    public ApiResponse<Void> createRole(@RequestBody RoleCreateReq req) {
+        roleService.createRole(req);
+        return ApiResponse.success(null);
     }
 
     @GetMapping("/{id}")
     @Operation(summary = "获取角色详情")
-    public ApiResponse<Role> getRole(@PathVariable Integer id) {
-        return ApiResponse.success(roleService.getRole(id));
+    public ApiResponse<RoleResp> getRole(@PathVariable Integer id) {
+        return ApiResponse.success(roleService.getRoleById(id));
     }
 
     @PutMapping("/{id}")
     @Operation(summary = "更新角色")
-    public ApiResponse<Role> updateRole(@PathVariable Integer id, @RequestBody Role role) {
-        role.setId(id);
-        return ApiResponse.success(roleService.updateRole(role));
+    public ApiResponse<Void> updateRole(@PathVariable Integer id, @RequestBody RoleUpdateReq req) {
+        req.setId(id);
+        roleService.updateRole(req);
+        return ApiResponse.success(null);
     }
 
     @GetMapping
     @Operation(summary = "查询角色（支持分页）")
-    public ApiResponse<?> getRoles(
-            @RequestParam(required = false, defaultValue = "1") Integer current,
-            @RequestParam(required = false, defaultValue = "10") Integer size,
-            @RequestParam(required = false) String name) {
-        if (size > 0) {
-            Page<Role> page = roleService.pageRoles(new Page<>(current, size), name);
+    public ApiResponse<?> getRoles(RoleQueryReq req) {
+        if (req.getSize() > 0) {
+            Page<RoleResp> page = roleService.pageRoles(req);
             return ApiResponse.success(page);
         } else {
-            List<Role> roles = roleService.listRoles(name);
+            List<RoleResp> roles = roleService.listRoles(req);
             return ApiResponse.success(roles);
         }
     }
@@ -64,7 +67,7 @@ public class RoleController {
 
     @GetMapping("/user/{userId}")
     @Operation(summary = "获取用户的所有角色")
-    public ApiResponse<List<Role>> getUserRoles(@PathVariable Integer userId) {
+    public ApiResponse<List<RoleResp>> getUserRoles(@PathVariable Integer userId) {
         return ApiResponse.success(roleService.getRolesByUserId(userId));
     }
 

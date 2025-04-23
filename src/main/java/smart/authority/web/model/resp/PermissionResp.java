@@ -1,11 +1,11 @@
-package smart.authority.web.model.entity;
+package smart.authority.web.model.resp;
 
-import com.baomidou.mybatisplus.annotation.TableField;
-import com.baomidou.mybatisplus.annotation.TableName;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
-import smart.authority.web.model.common.BaseEntity;
+import smart.authority.web.model.common.BaseResp;
+import smart.authority.web.model.entity.Permission;
+import smart.authority.web.model.entity.Role;
 
 import java.util.List;
 import java.util.Set;
@@ -15,12 +15,14 @@ import java.util.Set;
  */
 @Data
 @EqualsAndHashCode(callSuper = true)
-@TableName("permission")
-@Schema(description = "权限实体")
-public class Permission extends BaseEntity {
+@Schema(description = "权限响应")
+public class PermissionResp extends BaseResp {
 
     @Schema(description = "父权限ID")
     private Integer parentId;
+
+    @Schema(description = "父权限名称")
+    private String parentName;
 
     @Schema(description = "权限名称")
     private String name;
@@ -37,14 +39,9 @@ public class Permission extends BaseEntity {
     @Schema(description = "描述")
     private String description;
 
-    @Schema(description = "租户ID")
-    private Integer tenantId;
-
-    @TableField(exist = false)
     @Schema(description = "拥有该权限的角色")
-    private Set<Role> roles;
+    private Set<RoleResp> roles;
 
-    @TableField(exist = false)
     @Schema(description = "子权限列表")
-    private List<Permission> children;
-}
+    private List<PermissionResp> children;
+} 

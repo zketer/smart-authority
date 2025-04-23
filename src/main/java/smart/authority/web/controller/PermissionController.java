@@ -1,12 +1,18 @@
 package smart.authority.web.controller;
 
+import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import jakarta.validation.Valid;
 import smart.authority.common.model.ApiResponse;
-import smart.authority.web.model.entity.Permission;
+import smart.authority.web.model.req.permission.PermissionCreateReq;
+import smart.authority.web.model.req.permission.PermissionQueryReq;
+import smart.authority.web.model.req.permission.PermissionUpdateReq;
+import smart.authority.web.model.resp.PermissionResp;
 import smart.authority.web.service.PermissionService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.annotation.Resource;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -15,7 +21,7 @@ import java.util.List;
  * @author lynn
  */
 @RestController
-@RequestMapping("/permissions")
+@RequestMapping("/api/permissions")
 @Tag(name = "PermissionController", description = "权限相关接口")
 public class PermissionController {
 
@@ -24,23 +30,21 @@ public class PermissionController {
 
     @PostMapping
     @Operation(summary = "创建权限")
-    public ApiResponse<Permission> createPermission(@RequestBody Permission permission) {
-        return ApiResponse.success(permissionService.createPermission(permission));
+    public ApiResponse<Void> createPermission(@Validated @RequestBody PermissionCreateReq req) {
+        permissionService.createPermission(req);
+        return ApiResponse.success(null);
     }
 
     @GetMapping("/{id}")
     @Operation(summary = "获取权限详情")
-    public ApiResponse<Permission> getPermission(@PathVariable Integer id) {
+    public ApiResponse<PermissionResp> getPermission(@PathVariable Integer id) {
         return ApiResponse.success(permissionService.getPermissionById(id));
     }
 
     @GetMapping
     @Operation(summary = "分页查询权限")
-    public ApiResponse<Page<Permission>> pagePermissions(
-            @RequestParam(defaultValue = "1") Integer current,
-            @RequestParam(defaultValue = "10") Integer size,
-            @RequestParam(required = false) String name) {
-        return ApiResponse.success(permissionService.pagePermissions(new Page<>(current, size), name));
+    public ApiResponse<IPage<PermissionResp>> pagePermissions(@Valid PermissionQueryReq req) {
+        return ApiResponse.success(permissionService.pagePermissions(req));
     }
 
     @DeleteMapping("/{id}")
@@ -52,26 +56,26 @@ public class PermissionController {
 
     @GetMapping("/role/{roleId}")
     @Operation(summary = "获取角色的所有权限")
-    public ApiResponse<List<Permission>> getRolePermissions(@PathVariable Integer roleId) {
+    public ApiResponse<List<PermissionResp>> getRolePermissions(@PathVariable Integer roleId) {
         return ApiResponse.success(permissionService.getPermissionsByRoleId(roleId));
     }
 
     @GetMapping("/user/{userId}")
     @Operation(summary = "获取用户的所有权限")
-    public ApiResponse<List<Permission>> getUserPermissions(@PathVariable Integer userId) {
+    public ApiResponse<List<PermissionResp>> getUserPermissions(@PathVariable Integer userId) {
         return ApiResponse.success(permissionService.getPermissionsByUserId(userId));
     }
 
     @PutMapping("/{id}")
     @Operation(summary = "更新权限")
-    public ApiResponse<Permission> updatePermission(@PathVariable Integer id, @RequestBody Permission permission) {
-        permission.setId(id);
-        return ApiResponse.success(permissionService.updatePermission(permission));
+    public ApiResponse<PermissionResp> updatePermission(@PathVariable Integer id, @Validated @RequestBody PermissionUpdateReq req) {
+        req.setId(id);
+        return ApiResponse.success(permissionService.updatePermission(req));
     }
 
-    @GetMapping("/all")
-    @Operation(summary = "获取所有权限")
-    public ApiResponse<List<Permission>> getAllPermissions() {
-        return ApiResponse.success(permissionService.getAllPermissions());
+    @GetMapping("/tree")
+    @Operation(summary = "获取权限树")
+    public ApiResponse<List<PermissionResp>> getPermissionTree() {
+        return ApiResponse.success(permissionService.getPermissionTree());
     }
 }

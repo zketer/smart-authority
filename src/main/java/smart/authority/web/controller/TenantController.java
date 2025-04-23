@@ -1,10 +1,10 @@
 package smart.authority.web.controller;
 
-import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import com.baomidou.mybatisplus.core.metadata.IPage;
+import jakarta.annotation.Resource;
 import jakarta.validation.Valid;
-import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
-import smart.authority.common.ApiResponse;
+import smart.authority.common.model.ApiResponse;
 import smart.authority.web.model.req.tenant.TenantCreateReq;
 import smart.authority.web.model.req.tenant.TenantQueryReq;
 import smart.authority.web.model.req.tenant.TenantUpdateReq;
@@ -18,19 +18,19 @@ import io.swagger.v3.oas.annotations.tags.Tag;
  */
 @RestController
 @RequestMapping("/smart-authority/v1.0/tenants")
-@RequiredArgsConstructor
 @Tag(name = "TenantController", description = "租户相关接口")
 public class TenantController {
 
-    private final TenantService tenantService;
+    @Resource
+    private TenantService tenantService;
 
     /**
      * 分页查询租户
      */
     @GetMapping
     @Operation(summary = "分页查询租户")
-    public ApiResponse<Page<TenantResp>> pageTenants(@Valid TenantQueryReq req) {
-        return ApiResponse.ok(tenantService.pageTenants(req));
+    public ApiResponse<IPage<TenantResp>> pageTenants(@Valid TenantQueryReq req) {
+        return ApiResponse.success(tenantService.pageTenants(req));
     }
 
     /**
@@ -38,8 +38,9 @@ public class TenantController {
      */
     @PostMapping
     @Operation(summary = "创建租户")
-    public ApiResponse<TenantResp> createTenant(@Valid @RequestBody TenantCreateReq req) {
-        return ApiResponse.ok(tenantService.createTenant(req));
+    public ApiResponse<Void> createTenant(@Valid @RequestBody TenantCreateReq req) {
+        tenantService.createTenant(req);
+        return ApiResponse.success(null);
     }
 
     /**
@@ -47,9 +48,10 @@ public class TenantController {
      */
     @PutMapping("/{id}")
     @Operation(summary = "更新租户")
-    public ApiResponse<TenantResp> updateTenant(@PathVariable Integer id, @Valid @RequestBody TenantUpdateReq req) {
+    public ApiResponse<Void> updateTenant(@PathVariable Integer id, @Valid @RequestBody TenantUpdateReq req) {
         req.setId(id);
-        return ApiResponse.ok(tenantService.updateTenant(req));
+        tenantService.updateTenant(req);
+        return ApiResponse.success(null);
     }
 
     /**
@@ -58,7 +60,7 @@ public class TenantController {
     @GetMapping("/{id}")
     @Operation(summary = "获取租户详情")
     public ApiResponse<TenantResp> getTenant(@PathVariable Integer id) {
-        return ApiResponse.ok(tenantService.getTenant(id));
+        return ApiResponse.success(tenantService.getTenant(id));
     }
 
     /**
@@ -68,6 +70,6 @@ public class TenantController {
     @Operation(summary = "删除租户")
     public ApiResponse<Void> deleteTenant(@PathVariable Integer id) {
         tenantService.deleteTenant(id);
-        return ApiResponse.ok();
+        return ApiResponse.success(null);
     }
 }

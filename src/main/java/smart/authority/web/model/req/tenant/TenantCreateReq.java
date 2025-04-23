@@ -19,11 +19,6 @@ public class TenantCreateReq extends BaseReq {
     private String name;
     
     /**
-     * 租户编码
-     */
-    private String code;
-    
-    /**
      * 描述
      */
     private String description;

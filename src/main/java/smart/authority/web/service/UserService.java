@@ -8,6 +8,11 @@ import smart.authority.web.model.req.user.UserQueryReq;
 import smart.authority.web.model.req.user.UserUpdateReq;
 import smart.authority.web.model.resp.UserResp;
 
+import java.util.List;
+
+/**
+ * @author lynn
+ */
 public interface UserService extends IService<User> {
     /**
      * 创建用户
@@ -18,7 +23,7 @@ public interface UserService extends IService<User> {
     UserResp createUser(UserCreateReq req);
 
     /**
-     * 根据ID获取用户
+     * 获取用户详情
      *
      * @param id 用户ID
      * @return 用户响应
@@ -29,7 +34,7 @@ public interface UserService extends IService<User> {
      * 分页查询用户
      *
      * @param req 查询请求
-     * @return 分页结果
+     * @return 分页用户响应
      */
     Page<UserResp> pageUsers(UserQueryReq req);
 
@@ -46,4 +51,12 @@ public interface UserService extends IService<User> {
      * @param req 更新用户请求
      */
     void updateUser(UserUpdateReq req);
+
+    /**
+     * 分配角色
+     *
+     * @param userId 用户ID
+     * @param roleIds 角色ID列表
+     */
+    void assignRoles(Integer userId, List<Integer> roleIds);
 }

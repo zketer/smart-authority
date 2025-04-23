@@ -1,8 +1,13 @@
 package smart.authority.web.service;
 
+import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.IService;
 import smart.authority.web.model.entity.Permission;
+import smart.authority.web.model.req.permission.PermissionCreateReq;
+import smart.authority.web.model.req.permission.PermissionQueryReq;
+import smart.authority.web.model.req.permission.PermissionUpdateReq;
+import smart.authority.web.model.resp.PermissionResp;
 
 import java.util.List;
 
@@ -10,27 +15,25 @@ public interface PermissionService extends IService<Permission> {
     /**
      * 创建权限
      *
-     * @param permission 权限信息
-     * @return 权限信息
+     * @param req 创建权限请求
      */
-    Permission createPermission(Permission permission);
+    void createPermission(PermissionCreateReq req);
 
     /**
      * 获取权限详情
      *
      * @param id 权限ID
-     * @return 权限信息
+     * @return 权限响应
      */
-    Permission getPermissionById(Integer id);
+    PermissionResp getPermissionById(Integer id);
 
     /**
      * 分页查询权限
      *
-     * @param page 分页参数
-     * @param name 权限名称
-     * @return 分页权限信息
+     * @param req 查询请求
+     * @return 分页权限响应
      */
-    Page<Permission> pagePermissions(Page<Permission> page, String name);
+    IPage<PermissionResp> pagePermissions(PermissionQueryReq req);
 
     /**
      * 删除权限
@@ -43,30 +46,30 @@ public interface PermissionService extends IService<Permission> {
      * 获取角色的所有权限
      *
      * @param roleId 角色ID
-     * @return 权限列表
+     * @return 权限响应列表
      */
-    List<Permission> getPermissionsByRoleId(Integer roleId);
+    List<PermissionResp> getPermissionsByRoleId(Integer roleId);
 
     /**
      * 获取用户的所有权限
      *
      * @param userId 用户ID
-     * @return 权限列表
+     * @return 权限响应列表
      */
-    List<Permission> getPermissionsByUserId(Integer userId);
+    List<PermissionResp> getPermissionsByUserId(Integer userId);
 
     /**
      * 更新权限信息
      *
-     * @param permission 权限信息
-     * @return 更新后的权限信息
+     * @param req 更新权限请求
+     * @return 更新后的权限响应
      */
-    Permission updatePermission(Permission permission);
+    PermissionResp updatePermission(PermissionUpdateReq req);
 
     /**
-     * 获取所有权限
+     * 获取权限树
      *
-     * @return 权限列表
+     * @return 权限树
      */
-    List<Permission> getAllPermissions();
+    List<PermissionResp> getPermissionTree();
 }

@@ -1,10 +1,10 @@
 package smart.authority.web.model.entity;
 
-import com.baomidou.mybatisplus.annotation.*;
+import com.baomidou.mybatisplus.annotation.TableName;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
-import smart.authority.common.model.BaseEntity;
+import smart.authority.web.model.common.BaseEntity;
 
 /**
  * @author lynn
@@ -21,4 +21,6 @@ public class RolePermission extends BaseEntity {
     @Schema(description = "权限ID")
     private Integer permissionId;
 
+    @Schema(description = "租户ID")
+    private Integer tenantId;
 }
