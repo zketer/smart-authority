@@ -5,6 +5,7 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
 import smart.authority.common.model.BaseEntity;
 
+import java.util.List;
 import java.util.Set;
 
 @Data
@@ -13,7 +14,7 @@ import java.util.Set;
 public class Permission extends BaseEntity {
 
     @Schema(description = "父权限ID")
-    private Long parentId;
+    private Integer parentId;
 
     @Schema(description = "权限名称")
     private String name;
@@ -45,4 +46,8 @@ public class Permission extends BaseEntity {
     @TableField(exist = false)
     @Schema(description = "拥有该权限的角色")
     private Set<Role> roles;
+
+    @TableField(exist = false)
+    @Schema(description = "子权限列表")
+    private List<Permission> children;
 }

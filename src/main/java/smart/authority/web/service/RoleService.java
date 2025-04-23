@@ -70,7 +70,7 @@ public interface RoleService extends IService<Role> {
      * @param roleId 角色ID
      * @return 权限ID列表
      */
-    Set<Integer> getRolePermissions(Integer roleId);
+    List<Integer> getRolePermissions(Integer roleId);
 
     /**
      * 检查角色名是否已存在

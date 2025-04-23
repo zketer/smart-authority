@@ -96,12 +96,13 @@ public class RoleServiceImpl extends ServiceImpl<RoleMapper, Role> implements Ro
     }
 
     @Override
-    public Set<Integer> getRolePermissions(Integer roleId) {
-        LambdaQueryWrapper<RolePermission> queryWrapper = new LambdaQueryWrapper<>();
-        queryWrapper.eq(RolePermission::getRoleId, roleId);
-        return rolePermissionMapper.selectList(queryWrapper).stream()
+    public List<Integer> getRolePermissions(Integer roleId) {
+        return rolePermissionMapper.selectList(
+                new LambdaQueryWrapper<RolePermission>()
+                        .eq(RolePermission::getRoleId, roleId)
+        ).stream()
                 .map(RolePermission::getPermissionId)
-                .collect(Collectors.toSet());
+                .collect(Collectors.toList());
     }
 
     @Override

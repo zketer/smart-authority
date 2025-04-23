@@ -68,4 +68,10 @@ public class PermissionController {
         permission.setId(id);
         return ApiResponse.success(permissionService.updatePermission(permission));
     }
+
+    @GetMapping("/all")
+    @Operation(summary = "获取所有权限")
+    public ApiResponse<List<Permission>> getAllPermissions() {
+        return ApiResponse.success(permissionService.getAllPermissions());
+    }
 }

@@ -62,4 +62,11 @@ public interface PermissionService extends IService<Permission> {
      * @return 更新后的权限信息
      */
     Permission updatePermission(Permission permission);
+
+    /**
+     * 获取所有权限
+     *
+     * @return 权限列表
+     */
+    List<Permission> getAllPermissions();
 }

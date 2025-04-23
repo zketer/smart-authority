@@ -12,7 +12,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
 
-import java.util.List;
+import java.util.*;
+import java.util.stream.Collectors;
 
 @Service
 public class PermissionServiceImpl extends ServiceImpl<PermissionMapper, Permission> implements PermissionService {
@@ -69,16 +70,41 @@ public class PermissionServiceImpl extends ServiceImpl<PermissionMapper, Permiss
     @Override
     @Transactional
     public Permission updatePermission(Permission permission) {
-        if (permission.getId() == null) {
-            throw new IllegalArgumentException("Permission id cannot be null");
-        }
-        // 检查权限是否存在
-        Permission existingPermission = getById(permission.getId());
-        if (existingPermission == null) {
-            throw new IllegalArgumentException("Permission not found");
-        }
-        // 更新权限信息
         updateById(permission);
-        return getById(permission.getId());
+        return permission;
+    }
+
+    @Override
+    public List<Permission> getAllPermissions() {
+        // 获取所有权限
+        List<Permission> allPermissions = list();
+        
+        // 按照 parentId 分组
+        Map<Integer, List<Permission>> permissionMap = allPermissions.stream()
+                .collect(Collectors.groupingBy(p -> p.getParentId() == null ? 0 : p.getParentId()));
+        
+        // 构建树形结构
+        return buildPermissionTree(0, permissionMap);
+    }
+
+    private List<Permission> buildPermissionTree(Integer parentId, Map<Integer, List<Permission>> permissionMap) {
+        List<Permission> children = permissionMap.get(parentId);
+        if (children == null) {
+            return new ArrayList<>();
+        }
+
+        // 按照 sort 字段排序
+        children.sort(Comparator.comparing(p -> p.getSort() == null ? 0 : p.getSort()));
+
+        // 递归构建子树
+        for (Permission child : children) {
+            List<Permission> subTree = buildPermissionTree(child.getId(), permissionMap);
+            // 设置子权限
+            if (!subTree.isEmpty()) {
+                child.setChildren(subTree);
+            }
+        }
+
+        return children;
     }
 }
