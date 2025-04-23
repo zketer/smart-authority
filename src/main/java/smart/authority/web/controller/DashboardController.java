@@ -45,16 +45,16 @@ public class DashboardController {
         return ApiResponse.success(dashboardService.getPermissionStats());
     }
 
+    @Operation(summary = "获取租户统计")
+    @GetMapping("/tenant/stats")
+    public ApiResponse<StatsResp> getTenantStats() {
+        return ApiResponse.success(dashboardService.getTenantStats());
+    }
+
     @Operation(summary = "获取用户增长数据")
     @GetMapping("/user/growth")
     public ApiResponse<UserGrowthResp> getUserGrowth() {
         return ApiResponse.success(dashboardService.getUserGrowth());
-    }
-
-    @Operation(summary = "获取部门分布数据")
-    @GetMapping("/department/distribution")
-    public ApiResponse<StatsResp> getDepartmentDistribution() {
-        return ApiResponse.success(dashboardService.getDepartmentDistribution());
     }
 
     @Operation(summary = "获取用户活跃度数据")

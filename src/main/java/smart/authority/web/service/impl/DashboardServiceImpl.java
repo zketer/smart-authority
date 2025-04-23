@@ -173,6 +173,16 @@ public class DashboardServiceImpl implements DashboardService {
     }
 
     @Override
+    public StatsResp getTenantStats() {
+        StatsResp resp = new StatsResp();
+        Map<String, Long> data = new HashMap<>();
+        data.put("total", tenantMapper.selectCount(null));
+        // TODO: 实现租户统计的其他逻辑
+        resp.setData(data);
+        return resp;
+    }
+
+    @Override
     public UserGrowthResp getUserGrowth() {
         UserGrowthResp resp = new UserGrowthResp();
         
@@ -222,83 +232,40 @@ public class DashboardServiceImpl implements DashboardService {
     }
 
     @Override
-    public StatsResp getDepartmentDistribution() {
-        StatsResp resp = new StatsResp();
-        Map<String, Long> data = new HashMap<>();
-        
-        // 查询所有部门
-        List<Department> departments = departmentMapper.selectList(null);
-        
-        // 查询所有用户
-        List<User> users = userMapper.selectList(null);
-        
-        // 统计每个部门的用户数
-        for (Department dept : departments) {
-            long count = users.stream()
-                    .filter(user -> dept.getId().equals(user.getDepartmentId()))
-                    .count();
-            data.put(dept.getName(), count);
-        }
-        
-        // 统计未分配部门的用户数
-        long unassignedCount = users.stream()
-                .filter(user -> user.getDepartmentId() == null)
-                .count();
-        if (unassignedCount > 0) {
-            data.put("未分配", unassignedCount);
-        }
-        
-        resp.setData(data);
-        return resp;
-    }
-
-    @Override
     public UserActivityResp getUserActivity() {
         UserActivityResp resp = new UserActivityResp();
         
-        // 获取最近30天的日期列表
+        // 获取最近7天的日期列表
         List<String> dates = new ArrayList<>();
         List<Long> activeUsers = new ArrayList<>();
-        List<Double> avgOnlineTime = new ArrayList<>();
         
         LocalDate endDate = LocalDate.now();
-        LocalDate startDate = endDate.minusDays(29);
+        LocalDate startDate = endDate.minusDays(6);
         
         // 初始化日期列表和计数器
         LocalDate currentDate = startDate;
         while (!currentDate.isAfter(endDate)) {
             dates.add(currentDate.toString());
             activeUsers.add(0L);
-            avgOnlineTime.add(0.0);
             currentDate = currentDate.plusDays(1);
         }
         
-        // 查询每日活跃用户和在线时长
-        LambdaQueryWrapper<User> wrapper = new LambdaQueryWrapper<>();
-        wrapper.between(User::getLastLoginTime, startDate.atStartOfDay(), endDate.plusDays(1).atStartOfDay());
-        List<User> users = userMapper.selectList(wrapper);
+        // 查询每日活跃用户数
+        LambdaQueryWrapper<UserBehaviorLog> wrapper = new LambdaQueryWrapper<>();
+        wrapper.between(UserBehaviorLog::getCreateTime, startDate.atStartOfDay(), endDate.plusDays(1).atStartOfDay());
+        List<UserBehaviorLog> logs = userBehaviorLogMapper.selectList(wrapper);
         
-        // 统计每日活跃用户数和平均在线时长
-        for (User user : users) {
-            LocalDate loginDate = user.getLastLoginTime().toLocalDate();
-            int index = (int) ChronoUnit.DAYS.between(startDate, loginDate);
+        // 统计每日活跃用户数
+        for (UserBehaviorLog log : logs) {
+            LocalDate logDate = log.getCreateTime().toLocalDate();
+            int index = (int) ChronoUnit.DAYS.between(startDate, logDate);
             if (index >= 0 && index < dates.size()) {
                 activeUsers.set(index, activeUsers.get(index) + 1);
-                // 假设在线时长为30分钟（实际应该从用户行为日志中获取）
-                avgOnlineTime.set(index, avgOnlineTime.get(index) + 30.0);
-            }
-        }
-        
-        // 计算每日平均在线时长
-        for (int i = 0; i < dates.size(); i++) {
-            if (activeUsers.get(i) > 0) {
-                avgOnlineTime.set(i, avgOnlineTime.get(i) / activeUsers.get(i));
             }
         }
         
         resp.setDates(dates);
         resp.setActiveUsers(activeUsers);
-        resp.setAvgOnlineTime(avgOnlineTime);
         
         return resp;
     }

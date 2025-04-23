@@ -28,14 +28,14 @@ public interface DashboardService {
     StatsResp getPermissionStats();
 
     /**
+     * 获取租户统计
+     */
+    StatsResp getTenantStats();
+
+    /**
      * 获取用户增长数据
      */
     UserGrowthResp getUserGrowth();
-
-    /**
-     * 获取部门分布数据
-     */
-    StatsResp getDepartmentDistribution();
 
     /**
      * 获取用户活跃度数据
