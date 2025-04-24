@@ -18,8 +18,14 @@ RUN mkdir -p /root/.m2 && \
     echo '    </mirrors>' >> /root/.m2/settings.xml && \
     echo '</settings>' >> /root/.m2/settings.xml
 
+# 只复制 pom.xml 文件，这一步会缓存依赖
 COPY pom.xml .
+# 下载依赖到本地缓存
+RUN mvn dependency:go-offline
+
+# 复制源代码
 COPY src ./src
+# 构建应用
 RUN mvn clean package -DskipTests
 
 # Run stage
