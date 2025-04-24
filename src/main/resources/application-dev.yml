@@ -4,16 +4,14 @@ server:
     context-path: /smart-authority/v1.0
 
 spring:
-  profiles:
-    active: dev
   servlet:
     multipart:
       max-file-size: 10MB
       max-request-size: 10MB
   datasource:
-    url: jdbc:mysql://localhost:3306/mypermission?useSSL=false&serverTimezone=UTC&characterEncoding=UTF-8
+    url: jdbc:mysql://localhost:3306/smart_authority?useSSL=false&serverTimezone=UTC&characterEncoding=UTF-8
     username: root
-    password: rootroot
+    password: root
     driver-class-name: com.mysql.cj.jdbc.Driver
   data:
     redis:
@@ -30,7 +28,7 @@ spring:
 
 mybatis-plus:
   mapper-locations: classpath*:/mapper/**/*.xml
-  type-aliases-package: free.tools.mypermission.entity
+  type-aliases-package: free.tools.SmartAuthority.entity
   configuration:
     map-underscore-to-camel-case: true
     log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
@@ -49,28 +47,11 @@ springdoc:
     operationsSorter: method
 
 jwt:
-  secret: 8Zz5tw0Ionm3XPZZfN0NOml3z9FMfmpgXwovR9fp6ryDIoGRM8EPHAB6iHsc0fb # 至少256位的密钥
-  expiration: 86400000 # 24小时
-  refresh-expiration: 604800000 # 7天
-#
-#alibaba:
-#  cloud:
-#    access-key: your-access-key
-#    secret-key: your-secret-key
-#    oss:
-#      endpoint: oss-cn-hangzhou.aliyuncs.com
-#      bucket: your-bucket-name
+  secret: 8Zz5tw0Ionm3XPZZfN0NOml3z9FMfmpgXwovR9fp6ryDIoGRM8EPHAB6iHsc0fb
+  expiration: 86400000
+  refresh-expiration: 604800000
 
----
-spring:
-  config:
-    activate:
-      on-profile: dev
-  include: application-dev.yml
-
----
-spring:
-  config:
-    activate:
-      on-profile: prod
-  include: application-prod.yml
+logging:
+  level:
+    root: INFO
+    free.tools.SmartAuthority: DEBUG 
