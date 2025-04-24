@@ -31,4 +31,11 @@ public class LoginController {
         userService.logout(token);
         return ApiResponse.success(null);
     }
+
+    @Operation(summary = "验证token有效性")
+    @GetMapping("/verify")
+    public ApiResponse<Void> verifyToken(@RequestHeader("Authorization") String token) {
+        userService.verifyToken(token);
+        return ApiResponse.success(null);
+    }
 } 

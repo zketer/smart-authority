@@ -76,4 +76,11 @@ public interface UserService extends IService<User> {
      * @param token 访问令牌
      */
     void logout(String token);
+
+    /**
+     * 验证token有效性
+     *
+     * @param token 访问令牌
+     */
+    void verifyToken(String token);
 }

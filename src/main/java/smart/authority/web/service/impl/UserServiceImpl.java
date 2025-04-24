@@ -28,6 +28,8 @@ import smart.authority.web.service.TenantService;
 import smart.authority.web.service.UserService;
 import smart.authority.web.util.PasswordEncoder;
 import org.apache.commons.lang3.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -50,6 +52,8 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
 
     @Resource
     private PasswordEncoder passwordEncoder;
+
+    private static final Logger log = LoggerFactory.getLogger(UserServiceImpl.class);
 
     public UserServiceImpl(UserRoleMapper userRoleMapper,
                          RoleService roleService,
@@ -244,7 +248,27 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
 
     @Override
     public void logout(String token) {
+        // 处理 Bearer 前缀
+        if (token.startsWith("Bearer ")) {
+            token = token.substring(7);
+        }
         // 这里可以添加 token 黑名单等逻辑
+    }
+
+    @Override
+    public void verifyToken(String token) {
+        // 处理 Bearer 前缀
+        if (token.startsWith("Bearer ")) {
+            token = token.substring(7);
+        }
+        try {
+            if (!jwtConfig.validateToken(token)) {
+                throw new BusinessException(ErrorCode.TOKEN_INVALID);
+            }
+        } catch (Exception e) {
+            log.error("Token validation failed: {}", e.getMessage());
+            throw new BusinessException(ErrorCode.TOKEN_INVALID);
+        }
     }
 
     private UserResp convertToUserResp(User user) {
