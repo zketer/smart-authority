@@ -22,6 +22,9 @@ public class RoleResp extends BaseResp {
     @Schema(description = "角色描述")
     private String description;
 
+    @Schema(description = "是否为管理员")
+    private String isAdmin;
+
     @Schema(description = "角色拥有的权限ID列表")
     private List<Integer> permissionIds;
 

@@ -259,11 +259,39 @@ public class RoleServiceImpl extends ServiceImpl<RoleMapper, Role> implements Ro
             return new ArrayList<>();
         }
 
-        return listByIds(roleIds).stream()
+        List<Role> roles = listByIds(roleIds);
+
+
+        List<RolePermission> rolePermissions = new ArrayList<>();
+        if (CollectionUtils.isNotEmpty(roleIds)) {
+            LambdaQueryWrapper<RolePermission> lambdaQueryWrapper = new LambdaQueryWrapper<>();
+            lambdaQueryWrapper.in(RolePermission::getRoleId, roleIds);
+            rolePermissions = rolePermissionMapper.selectList(lambdaQueryWrapper);
+        }
+        Map<Integer, List<Integer>> rolePermissionMap = rolePermissions.stream().collect(
+                Collectors.groupingBy(RolePermission::getRoleId, Collectors.mapping(RolePermission::getPermissionId, Collectors.toList())));
+        Set<Integer> permissionIds = rolePermissions.stream().map(RolePermission::getPermissionId).collect(Collectors.toSet());
+        List<Permission> permissions = new ArrayList<>();
+        if (CollectionUtils.isNotEmpty(permissionIds)) {
+            QueryWrapper<Permission> query = Wrappers.query();
+            query.in("id", permissionIds);
+            permissions = permissionService.list(query);
+        }
+
+        List<PermissionResp> permissionRespList = new ArrayList<>();
+        for (Permission permission : permissions) {
+            PermissionResp permissionResp = new PermissionResp();
+            BeanUtils.copyProperties(permission, permissionResp);
+            permissionRespList.add(permissionResp);
+        }
+
+        return roles.stream()
                 .map(role -> {
                     RoleResp resp = new RoleResp();
                     BeanUtils.copyProperties(role, resp);
-                    resp.setPermissionIds(getRolePermissions(role.getId()));
+                    List<Integer> curPermissionIds = rolePermissionMap.getOrDefault(role.getId(), new ArrayList<>());
+                    resp.setPermissionIds(rolePermissionMap.getOrDefault(role.getId(), new ArrayList<>()));
+                    resp.setPermissions(permissionRespList.stream().filter(f -> curPermissionIds.contains(f.getId())).collect(Collectors.toSet()));
                     return resp;
                 })
                 .collect(Collectors.toList());
