@@ -28,6 +28,9 @@ public class UserResp extends BaseResp {
     @Schema(description = "电话")
     private String phone;
 
+    @Schema(description = "头像")
+    private String avatar;
+
     @Schema(description = "部门ID")
     private Integer departmentId;
 
