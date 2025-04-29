@@ -1,7 +1,7 @@
 package smart.authority.web.service.impl;
 
+import com.baomidou.mybatisplus.core.conditions.Wrapper;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
-import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import jakarta.annotation.Resource;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -11,9 +11,7 @@ import smart.authority.web.mapper.RoleMapper;
 import smart.authority.web.mapper.TenantMapper;
 import smart.authority.web.mapper.UserMapper;
 import smart.authority.web.mapper.UserBehaviorLogMapper;
-import smart.authority.web.model.entity.User;
-import smart.authority.web.model.entity.UserBehaviorLog;
-import smart.authority.web.model.entity.Department;
+import smart.authority.web.model.entity.*;
 import smart.authority.web.model.resp.*;
 import smart.authority.web.service.DashboardService;
 
@@ -23,12 +21,7 @@ import java.lang.management.MemoryUsage;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.temporal.TemporalAdjusters;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 import java.time.temporal.ChronoUnit;
 
@@ -57,60 +50,8 @@ public class DashboardServiceImpl implements DashboardService {
     @Resource
     private UserBehaviorLogMapper userBehaviorLogMapper;
 
-
-    public DashboardResp getDashboardData() {
-        DashboardResp resp = new DashboardResp();
-
-        // 获取各实体数量
-        resp.setUserCount(userMapper.selectCount(null));
-        resp.setRoleCount(roleMapper.selectCount(null));
-        resp.setPermissionCount(permissionMapper.selectCount(null));
-        resp.setDepartmentCount(departmentMapper.selectCount(null));
-        resp.setTenantCount(tenantMapper.selectCount(null));
-
-        // 获取最近登录的用户
-        LambdaQueryWrapper<User> userWrapper = new LambdaQueryWrapper<>();
-        List<User> recentUsers = userMapper.selectList(userWrapper);
-        resp.setRecentLoginUsers(recentUsers.stream()
-                .map(user -> {
-                    UserResp userResp = new UserResp();
-                    userResp.setId(user.getId());
-                    userResp.setUsername(user.getUsername());
-                    userResp.setName(user.getName());
-                    return userResp;
-                })
-                .collect(Collectors.toList()));
-
-        // 获取系统资源使用情况
-        SystemResourceResp systemResource = new SystemResourceResp();
-        
-        // 获取JVM内存使用情况
-        MemoryMXBean memoryMXBean = ManagementFactory.getMemoryMXBean();
-        MemoryUsage heapMemoryUsage = memoryMXBean.getHeapMemoryUsage();
-        MemoryUsage nonHeapMemoryUsage = memoryMXBean.getNonHeapMemoryUsage();
-
-        JvmMemoryResp heapMemory = new JvmMemoryResp();
-        heapMemory.setInit(heapMemoryUsage.getInit() / 1024 / 1024);
-        heapMemory.setUsed(heapMemoryUsage.getUsed() / 1024 / 1024);
-        heapMemory.setMax(heapMemoryUsage.getMax() / 1024 / 1024);
-        heapMemory.setCommitted(heapMemoryUsage.getCommitted() / 1024 / 1024);
-        heapMemory.setUsage((double) heapMemoryUsage.getUsed() / heapMemoryUsage.getCommitted() * 100);
-
-        JvmMemoryResp nonHeapMemory = new JvmMemoryResp();
-        nonHeapMemory.setInit(nonHeapMemoryUsage.getInit() / 1024 / 1024);
-        nonHeapMemory.setUsed(nonHeapMemoryUsage.getUsed() / 1024 / 1024);
-        nonHeapMemory.setMax(nonHeapMemoryUsage.getMax() / 1024 / 1024);
-        nonHeapMemory.setCommitted(nonHeapMemoryUsage.getCommitted() / 1024 / 1024);
-        nonHeapMemory.setUsage((double) nonHeapMemoryUsage.getUsed() / nonHeapMemoryUsage.getCommitted() * 100);
-
-        systemResource.setJvmMemory(heapMemory);
-        resp.setSystemResource(systemResource);
-
-        return resp;
-    }
-
     @Override
-    public StatsResp getUserStats() {
+    public StatsResp getUserStats(Integer tenantId) {
         StatsResp resp = new StatsResp();
         Map<String, Long> data = new HashMap<>();
         
@@ -122,6 +63,7 @@ public class DashboardServiceImpl implements DashboardService {
         LocalDateTime todayEnd = todayStart.plusDays(1);
         LambdaQueryWrapper<User> todayWrapper = new LambdaQueryWrapper<>();
         todayWrapper.between(User::getCreateTime, todayStart, todayEnd);
+        todayWrapper.eq(Objects.nonNull(tenantId), User::getTenantId, tenantId);
         data.put("todayNew", userMapper.selectCount(todayWrapper));
         
         // 获取本周新增用户数
@@ -129,6 +71,8 @@ public class DashboardServiceImpl implements DashboardService {
         LocalDateTime weekEnd = weekStart.plusWeeks(1);
         LambdaQueryWrapper<User> weekWrapper = new LambdaQueryWrapper<>();
         weekWrapper.between(User::getCreateTime, weekStart, weekEnd);
+        weekWrapper.eq(Objects.nonNull(tenantId), User::getTenantId, tenantId);
+
         data.put("weekNew", userMapper.selectCount(weekWrapper));
         
         // 获取本月新增用户数
@@ -136,6 +80,8 @@ public class DashboardServiceImpl implements DashboardService {
         LocalDateTime monthEnd = monthStart.plusMonths(1);
         LambdaQueryWrapper<User> monthWrapper = new LambdaQueryWrapper<>();
         monthWrapper.between(User::getCreateTime, monthStart, monthEnd);
+        monthWrapper.eq(Objects.nonNull(tenantId), User::getTenantId, tenantId);
+
         data.put("monthNew", userMapper.selectCount(monthWrapper));
         
         resp.setData(data);
@@ -143,47 +89,55 @@ public class DashboardServiceImpl implements DashboardService {
     }
 
     @Override
-    public StatsResp getDepartmentStats() {
+    public StatsResp getDepartmentStats(Integer tenantId) {
         StatsResp resp = new StatsResp();
         Map<String, Long> data = new HashMap<>();
-        data.put("total", departmentMapper.selectCount(null));
+        LambdaQueryWrapper<Department> queryWrapper = new LambdaQueryWrapper<>();
+        queryWrapper.eq(Objects.nonNull(tenantId), Department::getTenantId, tenantId);
+        data.put("total", departmentMapper.selectCount(queryWrapper));
         // TODO: 实现部门统计的其他逻辑
         resp.setData(data);
         return resp;
     }
 
     @Override
-    public StatsResp getRoleStats() {
+    public StatsResp getRoleStats(Integer tenantId) {
         StatsResp resp = new StatsResp();
         Map<String, Long> data = new HashMap<>();
-        data.put("total", roleMapper.selectCount(null));
+        LambdaQueryWrapper<Role> queryWrapper = new LambdaQueryWrapper<>();
+        queryWrapper.eq(Objects.nonNull(tenantId), Role::getTenantId, tenantId);
+        data.put("total", roleMapper.selectCount(queryWrapper));
         // TODO: 实现角色统计的其他逻辑
         resp.setData(data);
         return resp;
     }
 
     @Override
-    public StatsResp getPermissionStats() {
+    public StatsResp getPermissionStats(Integer tenantId) {
         StatsResp resp = new StatsResp();
         Map<String, Long> data = new HashMap<>();
-        data.put("total", permissionMapper.selectCount(null));
+        LambdaQueryWrapper<Permission> queryWrapper = new LambdaQueryWrapper<>();
+        queryWrapper.eq(Objects.nonNull(tenantId), Permission::getTenantId, tenantId);
+        data.put("total", permissionMapper.selectCount(queryWrapper));
         // TODO: 实现权限统计的其他逻辑
         resp.setData(data);
         return resp;
     }
 
     @Override
-    public StatsResp getTenantStats() {
+    public StatsResp getTenantStats(Integer tenantId) {
         StatsResp resp = new StatsResp();
         Map<String, Long> data = new HashMap<>();
-        data.put("total", tenantMapper.selectCount(null));
+        LambdaQueryWrapper<Tenant> queryWrapper = new LambdaQueryWrapper<>();
+        queryWrapper.eq(Objects.nonNull(tenantId), Tenant::getId, tenantId);
+        data.put("total", tenantMapper.selectCount(queryWrapper));
         // TODO: 实现租户统计的其他逻辑
         resp.setData(data);
         return resp;
     }
 
     @Override
-    public UserGrowthResp getUserGrowth() {
+    public UserGrowthResp getUserGrowth(Integer tenantId) {
         UserGrowthResp resp = new UserGrowthResp();
         
         // 获取最近30天的日期列表
@@ -206,6 +160,7 @@ public class DashboardServiceImpl implements DashboardService {
         // 查询每日新增用户数
         LambdaQueryWrapper<User> wrapper = new LambdaQueryWrapper<>();
         wrapper.between(User::getCreateTime, startDate.atStartOfDay(), endDate.plusDays(1).atStartOfDay());
+        wrapper.eq(Objects.nonNull(tenantId), User::getTenantId, tenantId);
         List<User> users = userMapper.selectList(wrapper);
         
         // 统计每日新增用户数
@@ -232,7 +187,7 @@ public class DashboardServiceImpl implements DashboardService {
     }
 
     @Override
-    public UserActivityResp getUserActivity() {
+    public UserActivityResp getUserActivity(Integer tenantId) {
         UserActivityResp resp = new UserActivityResp();
         
         // 获取最近7天的日期列表
@@ -253,6 +208,7 @@ public class DashboardServiceImpl implements DashboardService {
         // 查询每日活跃用户数
         LambdaQueryWrapper<UserBehaviorLog> wrapper = new LambdaQueryWrapper<>();
         wrapper.between(UserBehaviorLog::getCreateTime, startDate.atStartOfDay(), endDate.plusDays(1).atStartOfDay());
+        wrapper.eq(Objects.nonNull(tenantId), UserBehaviorLog::getTenantId, tenantId);
         List<UserBehaviorLog> logs = userBehaviorLogMapper.selectList(wrapper);
         
         // 统计每日活跃用户数
@@ -271,7 +227,7 @@ public class DashboardServiceImpl implements DashboardService {
     }
 
     @Override
-    public UserBehaviorResp getUserBehavior() {
+    public UserBehaviorResp getUserBehavior(Integer tenantId) {
         UserBehaviorResp resp = new UserBehaviorResp();
         
         // 获取最近30天的日期列表
@@ -309,6 +265,7 @@ public class DashboardServiceImpl implements DashboardService {
         // 查询用户行为日志
         LambdaQueryWrapper<UserBehaviorLog> wrapper = new LambdaQueryWrapper<>();
         wrapper.between(UserBehaviorLog::getCreateTime, startDate.atStartOfDay(), endDate.plusDays(1).atStartOfDay());
+        wrapper.eq(Objects.nonNull(tenantId), UserBehaviorLog::getTenantId, tenantId);
         List<UserBehaviorLog> logs = userBehaviorLogMapper.selectList(wrapper);
         
         // 统计每日数据

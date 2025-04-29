@@ -2,7 +2,6 @@ package smart.authority.web.mapper;
 
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
-import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import org.apache.ibatis.annotations.Param;
 import org.apache.ibatis.annotations.Select;
 import smart.authority.web.model.entity.Department;
@@ -27,8 +26,14 @@ public interface DepartmentMapper extends BaseMapper<Department> {
             "<if test='tenantName != null and tenantName !=\"\" '> " +
             "and tenant.name like concat('%', #{tenantName}, '%')" +
             "</if>" +
+            "<if test='tenantId != null'> " +
+            "and dept.tenant_id = #{tenantId}" +
+            "</if>" +
             "</script>")
-    IPage<DepartmentResp> selectPageDepartments(@Param("page") IPage<DepartmentResp> page,
-                                                @Param("name") String name,
-                                                @Param("tenantName") String tenantName);
+    IPage<DepartmentResp> selectPageDepartments(
+        @Param("page") IPage<DepartmentResp> page,
+        @Param("name") String name,
+        @Param("tenantName") String tenantName,
+        @Param("tenantId") Integer tenantId
+    );
 }

@@ -10,40 +10,40 @@ public interface DashboardService {
     /**
      * 获取用户统计
      */
-    StatsResp getUserStats();
+    StatsResp getUserStats(Integer tenantId);
 
     /**
      * 获取部门统计
      */
-    StatsResp getDepartmentStats();
+    StatsResp getDepartmentStats(Integer tenantId);
 
     /**
      * 获取角色统计
      */
-    StatsResp getRoleStats();
+    StatsResp getRoleStats(Integer tenantId);
 
     /**
      * 获取权限统计
      */
-    StatsResp getPermissionStats();
+    StatsResp getPermissionStats(Integer tenantId);
 
     /**
      * 获取租户统计
      */
-    StatsResp getTenantStats();
+    StatsResp getTenantStats(Integer tenantId);
 
     /**
      * 获取用户增长数据
      */
-    UserGrowthResp getUserGrowth();
+    UserGrowthResp getUserGrowth(Integer tenantId);
 
     /**
      * 获取用户活跃度数据
      */
-    UserActivityResp getUserActivity();
+    UserActivityResp getUserActivity(Integer tenantId);
 
     /**
      * 获取用户行为数据
      */
-    UserBehaviorResp getUserBehavior();
+    UserBehaviorResp getUserBehavior(Integer tenantId);
 } 

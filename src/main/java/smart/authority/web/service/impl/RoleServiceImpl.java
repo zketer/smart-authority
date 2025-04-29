@@ -29,10 +29,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
 import smart.authority.web.service.TenantService;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
@@ -128,6 +125,9 @@ public class RoleServiceImpl extends ServiceImpl<RoleMapper, Role> implements Ro
     public Page<RoleResp> pageRoles(RoleQueryReq req) {
         LambdaQueryWrapper<Role> queryWrapper = new LambdaQueryWrapper<>();
         queryWrapper.like(StringUtils.hasText(req.getName()), Role::getName, req.getName());
+        if (Objects.nonNull(req.getTenantId())) {
+            queryWrapper.eq(Role::getTenantId, req.getTenantId());
+        }
 
         Page<Role> page = new Page<>(req.getCurrent(), req.getSize());
         Page<Role> rolePage = page(page, queryWrapper);

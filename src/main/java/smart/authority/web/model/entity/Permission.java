@@ -37,9 +37,6 @@ public class Permission extends BaseEntity {
     @Schema(description = "描述")
     private String description;
 
-    @Schema(description = "租户ID")
-    private Integer tenantId;
-
     @TableField(exist = false)
     @Schema(description = "拥有该权限的角色")
     private Set<Role> roles;

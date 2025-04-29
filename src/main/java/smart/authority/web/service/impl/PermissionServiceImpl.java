@@ -11,14 +11,17 @@ import smart.authority.common.exception.ErrorCode;
 import smart.authority.web.model.entity.Permission;
 import smart.authority.web.model.entity.Role;
 import smart.authority.web.model.entity.RolePermission;
+import smart.authority.web.model.entity.Tenant;
 import smart.authority.web.mapper.PermissionMapper;
 import smart.authority.web.mapper.RoleMapper;
 import smart.authority.web.mapper.RolePermissionMapper;
+import smart.authority.web.mapper.TenantMapper;
 import smart.authority.web.model.req.permission.PermissionCreateReq;
 import smart.authority.web.model.req.permission.PermissionQueryReq;
 import smart.authority.web.model.req.permission.PermissionUpdateReq;
 import smart.authority.web.model.resp.PermissionResp;
 import smart.authority.web.model.resp.RoleResp;
+import smart.authority.web.model.resp.tenant.TenantResp;
 import smart.authority.web.service.PermissionService;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -34,6 +37,8 @@ public class PermissionServiceImpl extends ServiceImpl<PermissionMapper, Permiss
     private RolePermissionMapper rolePermissionMapper;
     @Resource
     private RoleMapper roleMapper;
+    @Resource
+    private TenantMapper tenantMapper;
 
     @Override
     @Transactional
@@ -110,6 +115,9 @@ public class PermissionServiceImpl extends ServiceImpl<PermissionMapper, Permiss
                 .like(StringUtils.hasText(req.getCode()), Permission::getCode, req.getCode())
                 .eq(req.getType() != null, Permission::getType, req.getType())
                 .eq(req.getParentId() != null, Permission::getParentId, req.getParentId());
+        if (req.getTenantId() != null) {
+            wrapper.eq(Permission::getTenantId, req.getTenantId());
+        }
 
         // 2. 执行分页查询
         Page<Permission> page = new Page<>(req.getCurrent(), req.getSize());
@@ -149,6 +157,16 @@ public class PermissionServiceImpl extends ServiceImpl<PermissionMapper, Permiss
                     .filter(Objects::nonNull)
                     .collect(Collectors.toSet());
                 resp.setRoles(roles);
+            }
+
+            // 获取租户信息
+            if (permission.getTenantId() != null) {
+                Tenant tenant = tenantMapper.selectById(permission.getTenantId());
+                if (tenant != null) {
+                    TenantResp tenantResp = new TenantResp();
+                    BeanUtils.copyProperties(tenant, tenantResp);
+                    resp.setTenantResp(tenantResp);
+                }
             }
 
             return resp;

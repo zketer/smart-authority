@@ -6,6 +6,7 @@ import lombok.EqualsAndHashCode;
 import smart.authority.web.model.common.BaseResp;
 import smart.authority.web.model.entity.Permission;
 import smart.authority.web.model.entity.Role;
+import smart.authority.web.model.resp.tenant.TenantResp;
 
 import java.util.List;
 import java.util.Set;
@@ -44,4 +45,7 @@ public class PermissionResp extends BaseResp {
 
     @Schema(description = "子权限列表")
     private List<PermissionResp> children;
+
+    @Schema(description = "租户信息")
+    private TenantResp tenantResp;
 } 

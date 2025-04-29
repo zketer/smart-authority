@@ -81,21 +81,12 @@ public class DepartmentServiceImpl extends ServiceImpl<DepartmentMapper, Departm
         log.info("获取部门列表: {}", req);
         // 1. 构建查询条件
 
-        IPage<DepartmentResp> page = baseMapper.selectPageDepartments(new Page<>(req.getCurrent(), req.getSize()), req.getName(), req.getName());
-
-//        LambdaQueryWrapper<Department> wrapper = new LambdaQueryWrapper<>();
-//        wrapper.like(StringUtils.isNotBlank(req.getName()), Department::getName, req.getName())
-//                .eq(req.getParentId() != null, Department::getParentId, req.getParentId());
-//
-//        // 2. 执行分页查询
-//        Page<Department> page = new Page<>(req.getCurrent(), req.getSize());
-//        Page<Department> departmentPage = page(page, wrapper);
-
-        // 3. 转换结果
-//        Page<DepartmentResp> respPage = new Page<>(departmentPage.getCurrent(), departmentPage.getSize(), departmentPage.getTotal());
-//        page.setRecords(page.getRecords().stream().map(this::setParentDept).collect(java.util.stream.Collectors.toList()));
-
-        return page;
+        return baseMapper.selectPageDepartments(
+            new Page<>(req.getCurrent(), req.getSize()),
+            req.getName(),
+            req.getTenantName(),
+            req.getTenantId()
+        );
     }
 
     @Override
