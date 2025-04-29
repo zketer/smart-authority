@@ -181,7 +181,9 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
         User user = new User();
         BeanUtils.copyProperties(req, user);
         // 保持租户ID不变
-        user.setTenantId(existingUser.getTenantId());
+        if (Objects.nonNull(req.getTenantId())) {
+            user.setTenantId(req.getTenantId());
+        }
         // 如果密码不为空，则加密密码
         if (StringUtils.isNotBlank(req.getPassword())) {
             user.setPassword(passwordEncoder.encode(req.getPassword()));
