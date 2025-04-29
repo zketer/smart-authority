@@ -17,6 +17,7 @@ public enum ErrorCode {
     USER_ACCOUNT_DISABLED(1004, "账号已被禁用", "Account is disabled"),
     USER_NAME_EXISTS(1104, "用户名已存在", "User name already exists" ),
     TOKEN_INVALID(1005, "Token无效或已过期", "Token is invalid or expired"),
+    USER_NOT_PERMISSION(1006, "用户无权限", "User has no permission"),
 
     // 角色相关错误码 (1100-1199)
     ROLE_NOT_FOUND(1100, "角色不存在", "Role not found"),

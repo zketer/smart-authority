@@ -3,7 +3,7 @@ version: '3.8'
 services:
   frontend:
     build:
-      context: ../smart-authority-web-frontend
+      context: smart-authority-web-frontend
       dockerfile: Dockerfile
     ports:
       - "80:80"
@@ -13,7 +13,7 @@ services:
       - smart-authority-network
 
   backend:
-    build: .
+    build: smart-authority-web-backend
     ports:
       - "8080:8080"
     environment:
@@ -25,7 +25,7 @@ services:
       - SPRING_REDIS_PORT=6379
     depends_on:
       - mysql
-      - redis
+#      - redis
     networks:
       - smart-authority-network
 
@@ -41,18 +41,18 @@ services:
     networks:
       - smart-authority-network
 
-  redis:
-    image: redis:6.2
-    ports:
-      - "6379:6379"
-    volumes:
-      - redis_data:/data
-    networks:
-      - smart-authority-network
+#  redis:
+#    image: redis:6.2
+#    ports:
+#      - "6379:6379"
+#    volumes:
+#      - redis_data:/data
+#    networks:
+#      - smart-authority-network
 
 volumes:
   mysql_data:
-  redis_data:
+#  redis_data:
 
 networks:
   smart-authority-network:

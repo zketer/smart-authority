@@ -1,6 +1,7 @@
 package smart.authority.web.service.impl;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.baomidou.mybatisplus.core.toolkit.CollectionUtils;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import lombok.RequiredArgsConstructor;
@@ -17,9 +18,7 @@ import smart.authority.web.model.req.tenant.TenantUpdateReq;
 import smart.authority.web.model.resp.tenant.TenantResp;
 import smart.authority.web.service.TenantService;
 
-import java.util.List;
-import java.util.Objects;
-import java.util.Optional;
+import java.util.*;
 import java.util.stream.Collectors;
 
 /**
@@ -54,6 +53,15 @@ public class TenantServiceImpl extends ServiceImpl<TenantMapper, Tenant> impleme
         respPage.setRecords(records);
 
         return respPage;
+    }
+
+    @Override
+    public Map<Integer, String> getTenantByIds(List<Integer> ids) {
+        List<Tenant> tenants = new ArrayList<>();
+        if (CollectionUtils.isNotEmpty(ids)) {
+            tenants = baseMapper.selectBatchIds(ids);
+        }
+        return tenants.stream().collect(Collectors.toMap(Tenant::getId, Tenant::getName));
     }
 
     @Override

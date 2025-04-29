@@ -31,6 +31,7 @@ RUN mvn clean package -DskipTests
 # Run stage
 FROM openjdk:17-jdk-slim
 WORKDIR /app
-COPY --from=build /app/target/SmartAuthority-0.0.1-SNAPSHOT.jar app.jar
+# 使用通配符匹配 JAR 文件
+COPY --from=build /app/target/*.jar app.jar
 EXPOSE 8080
 ENTRYPOINT ["java", "-jar", "app.jar"] 

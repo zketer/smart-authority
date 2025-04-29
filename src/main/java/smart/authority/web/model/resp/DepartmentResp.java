@@ -24,6 +24,9 @@ public class DepartmentResp extends BaseResp {
     @Schema(description = "父部门名称")
     private String parentName;
 
+    @Schema(description = "租户")
+    private String tenantName;
+
     @Schema(description = "描述")
     private String description;
 

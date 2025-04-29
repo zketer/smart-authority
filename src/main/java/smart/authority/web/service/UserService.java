@@ -2,6 +2,7 @@ package smart.authority.web.service;
 
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.IService;
+import org.springframework.transaction.annotation.Transactional;
 import smart.authority.web.model.entity.User;
 import smart.authority.web.model.req.user.LoginReq;
 import smart.authority.web.model.req.user.UserCreateReq;
@@ -60,7 +61,7 @@ public interface UserService extends IService<User> {
      * @param userId 用户ID
      * @param roleIds 角色ID列表
      */
-    void assignRoles(Integer userId, List<Integer> roleIds);
+    void assignRoles(Integer userId, List<Integer> roleIds, Integer tenantId);
 
     /**
      * 用户登录

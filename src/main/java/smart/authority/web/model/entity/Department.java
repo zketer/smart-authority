@@ -15,9 +15,6 @@ import lombok.EqualsAndHashCode;
 @Schema(description = "部门实体")
 public class Department extends BaseEntity {
 
-    @Schema(description = "租户ID")
-    private Integer tenantId;
-
     @Schema(description = "部门名称")
     private String name;
 

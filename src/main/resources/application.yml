@@ -10,23 +10,6 @@ spring:
     multipart:
       max-file-size: 10MB
       max-request-size: 10MB
-  datasource:
-    url: jdbc:mysql://localhost:3306/mypermission?useSSL=false&serverTimezone=UTC&characterEncoding=UTF-8
-    username: root
-    password: rootroot
-    driver-class-name: com.mysql.cj.jdbc.Driver
-  data:
-    redis:
-      database: 0
-      host: 127.0.0.1
-      port: 6379
-      password:
-      timeout: 1200
-      pool:
-        max-active: 8
-        max-wait: -1
-        max-idle: 8
-        min-idle: 0
 
 mybatis-plus:
   mapper-locations: classpath*:/mapper/**/*.xml
@@ -60,17 +43,17 @@ jwt:
 #    oss:
 #      endpoint: oss-cn-hangzhou.aliyuncs.com
 #      bucket: your-bucket-name
-
----
-spring:
-  config:
-    activate:
-      on-profile: dev
-  include: application-dev.yml
-
----
-spring:
-  config:
-    activate:
-      on-profile: prod
-  include: application-prod.yml
+#
+#---
+#spring:
+#  config:
+#    activate:
+#      on-profile: dev
+#  include: application-dev.yml
+#
+#---
+#spring:
+#  config:
+#    activate:
+#      on-profile: prod
+#  include: application-prod.yml

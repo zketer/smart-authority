@@ -12,6 +12,7 @@ import smart.authority.common.exception.ErrorCode;
 import smart.authority.web.config.JwtConfig;
 import smart.authority.web.mapper.UserMapper;
 import smart.authority.web.mapper.UserRoleMapper;
+import smart.authority.web.model.entity.Role;
 import smart.authority.web.model.entity.User;
 import smart.authority.web.model.entity.UserRole;
 import smart.authority.web.model.req.user.LoginReq;
@@ -19,10 +20,13 @@ import smart.authority.web.model.req.user.UserCreateReq;
 import smart.authority.web.model.req.user.UserQueryReq;
 import smart.authority.web.model.req.user.UserUpdateReq;
 import smart.authority.web.model.resp.DepartmentResp;
+import smart.authority.web.model.resp.PermissionResp;
+import smart.authority.web.model.resp.RoleResp;
 import smart.authority.web.model.resp.UserResp;
 import smart.authority.web.model.resp.tenant.TenantResp;
 import smart.authority.web.model.resp.user.LoginResp;
 import smart.authority.web.service.DepartmentService;
+import smart.authority.web.service.PermissionService;
 import smart.authority.web.service.RoleService;
 import smart.authority.web.service.TenantService;
 import smart.authority.web.service.UserService;
@@ -32,8 +36,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.time.LocalDateTime;
-import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 /**
@@ -52,6 +57,9 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
 
     @Resource
     private PasswordEncoder passwordEncoder;
+
+    @Resource
+    private PermissionService permissionService;
 
     private static final Logger log = LoggerFactory.getLogger(UserServiceImpl.class);
 
@@ -89,7 +97,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
 
         // 3. 分配角色
         if (req.getRoleIds() != null && !req.getRoleIds().isEmpty()) {
-            assignRoles(user.getId(), req.getRoleIds());
+            assignRoles(user.getId(), req.getRoleIds(), req.getTenantId());
         }
 
         return getUserById(user.getId());
@@ -106,15 +114,17 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
 
     @Override
     public Page<UserResp> pageUsers(UserQueryReq req) {
-        req.setTenantId(1);
+        req.setTenantId(req.getTenantId());
         // 1. 构建查询条件
         LambdaQueryWrapper<User> wrapper = new LambdaQueryWrapper<>();
-        wrapper.eq(User::getTenantId, req.getTenantId());
         wrapper.like(StringUtils.isNotBlank(req.getName()), User::getName, req.getName());
         wrapper.like(StringUtils.isNotBlank(req.getUsername()), User::getUsername, req.getUsername());
         wrapper.like(StringUtils.isNotBlank(req.getEmail()), User::getEmail, req.getEmail());
         wrapper.like(StringUtils.isNotBlank(req.getPhone()), User::getPhone, req.getPhone());
         wrapper.eq(StringUtils.isNotBlank(req.getStatus()), User::getStatus, req.getStatus());
+        if (Objects.nonNull(req.getTenantId())) {
+            wrapper.eq(User::getTenantId, req.getTenantId());
+        }
 
         // 2. 执行分页查询
         Page<User> page = new Page<>(req.getCurrent(), req.getSize());
@@ -181,7 +191,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
 
         // 4. 更新用户角色
         if (req.getRoleIds() != null) {
-            assignRoles(user.getId(), req.getRoleIds());
+            assignRoles(user.getId(), req.getRoleIds(), req.getTenantId());
         }
 
         // 5. 保存更新
@@ -190,10 +200,11 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
 
     @Override
     @Transactional
-    public void assignRoles(Integer userId, List<Integer> roleIds) {
+    public void assignRoles(Integer userId, List<Integer> roleIds, Integer tenantId) {
         // 1. 删除现有角色
         LambdaQueryWrapper<UserRole> wrapper = new LambdaQueryWrapper<>();
         wrapper.eq(UserRole::getUserId, userId);
+        wrapper.eq(UserRole::getTenantId, tenantId);
         userRoleMapper.delete(wrapper);
 
         // 2. 分配新角色
@@ -203,6 +214,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
                         UserRole userRole = new UserRole();
                         userRole.setUserId(userId);
                         userRole.setRoleId(roleId);
+                        userRole.setTenantId(tenantId);
                         return userRole;
                     })
                     .toList();
@@ -230,19 +242,40 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
             throw new BusinessException(ErrorCode.USER_ACCOUNT_DISABLED);
         }
 
-        // 4. 生成 token
+        // 4. 判断用户权限
+        LambdaQueryWrapper<UserRole> queryWrapper = new LambdaQueryWrapper<>();
+        queryWrapper.eq(UserRole::getUserId, user.getId());
+        List<UserRole> userRoles = userRoleMapper.selectList(queryWrapper);
+        if (userRoles.isEmpty()) {
+            throw new BusinessException(ErrorCode.USER_NOT_PERMISSION);
+        }
+        Set<Integer> roleIds = userRoles.stream().map(UserRole::getRoleId).collect(Collectors.toSet());
+        List<Role> roles = roleService.listByIds(roleIds);
+        Set<Role> isAdmin = roles.stream().filter(f -> "admin".equals(f.getIsAdmin())).collect(Collectors.toSet());
+
+        // 5. 生成 token
         String accessToken = jwtConfig.generateToken(user.getUsername());
         String refreshToken = jwtConfig.generateRefreshToken(user.getUsername());
 
-        // 5. 更新最后登录时间
+        // 6. 更新最后登录时间
         user.setLastLoginTime(LocalDateTime.now());
         updateById(user);
 
-        // 6. 返回登录信息
+        // 7. 返回登录信息
         LoginResp resp = new LoginResp();
         BeanUtils.copyProperties(user, resp);
         resp.setAccessToken(accessToken);
         resp.setRefreshToken(refreshToken);
+        
+        // 8. 设置管理员标识
+        if (!isAdmin.isEmpty()) {
+            resp.setIsAdmin("admin");
+        }
+        
+        // 9. 获取用户权限列表
+        List<PermissionResp> permissions = permissionService.getPermissionsByUserId(user.getId());
+//        resp.setPermissions(permissions);
+
         return resp;
     }
 
@@ -288,8 +321,10 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
         }
 
         // 设置角色信息
-        resp.setRoles(roleService.getRolesByUserId(user.getId()));
-
+        List<RoleResp> roles = roleService.getRolesByUserId(user.getId());
+        resp.setRoles(roles);
+        Set<RoleResp> isAdmin = roles.stream().filter(f -> "admin".equals(f.getIsAdmin())).collect(Collectors.toSet());
+        resp.setIsAdmin(isAdmin.isEmpty() ? "not admin" : "admin");
         return resp;
     }
 }

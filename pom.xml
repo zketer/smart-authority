@@ -132,7 +132,6 @@
                 <version>${spring-boot.version}</version>
                 <configuration>
                     <mainClass>smart.authority.SmartAuthorityApplication</mainClass>
-                    <skip>true</skip>
                 </configuration>
                 <executions>
                     <execution>

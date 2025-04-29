@@ -4,12 +4,12 @@ import com.baomidou.mybatisplus.core.conditions.Wrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.toolkit.CollectionUtils;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
+import com.baomidou.mybatisplus.extension.service.IService;
+import jakarta.annotation.Resource;
 import smart.authority.common.exception.BusinessException;
 import smart.authority.common.exception.ErrorCode;
-import smart.authority.web.model.entity.Permission;
-import smart.authority.web.model.entity.Role;
-import smart.authority.web.model.entity.RolePermission;
-import smart.authority.web.model.entity.UserRole;
+import smart.authority.web.mapper.TenantMapper;
+import smart.authority.web.model.entity.*;
 import smart.authority.web.mapper.RoleMapper;
 import smart.authority.web.mapper.RolePermissionMapper;
 import smart.authority.web.mapper.UserRoleMapper;
@@ -27,6 +27,7 @@ import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
+import smart.authority.web.service.TenantService;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -37,9 +38,14 @@ import java.util.stream.Collectors;
 @Service
 public class RoleServiceImpl extends ServiceImpl<RoleMapper, Role> implements RoleService {
 
-    private final RolePermissionMapper rolePermissionMapper;
-    private final UserRoleMapper userRoleMapper;
-    private final PermissionService permissionService;
+    @Resource
+    private RolePermissionMapper rolePermissionMapper;
+    @Resource
+    private UserRoleMapper userRoleMapper;
+    @Resource
+    private PermissionService permissionService;
+    @Resource
+    private TenantService tenantService;
 
     public RoleServiceImpl(RolePermissionMapper rolePermissionMapper,
                           UserRoleMapper userRoleMapper,
@@ -153,6 +159,8 @@ public class RoleServiceImpl extends ServiceImpl<RoleMapper, Role> implements Ro
             permissionRespList.add(permissionResp);
         }
 
+        List<Integer> tenantIds = roleList.stream().map(Role::getTenantId).distinct().collect(Collectors.toList());
+        Map<Integer, String> tenantMap = tenantService.getTenantByIds(tenantIds);
         List<RoleResp> records = roleList.stream()
                 .map(role -> {
                     RoleResp resp = new RoleResp();
@@ -160,6 +168,7 @@ public class RoleServiceImpl extends ServiceImpl<RoleMapper, Role> implements Ro
                     List<Integer> curPermissionIds = rolePermissionMap.getOrDefault(role.getId(), new ArrayList<>());
                     resp.setPermissionIds(rolePermissionMap.getOrDefault(role.getId(), new ArrayList<>()));
                     resp.setPermissions(permissionRespList.stream().filter(f -> curPermissionIds.contains(f.getId())).collect(Collectors.toSet()));
+                    resp.setTenantName(tenantMap.get(role.getTenantId()));
                     return resp;
                 })
                 .collect(Collectors.toList());
@@ -284,7 +293,8 @@ public class RoleServiceImpl extends ServiceImpl<RoleMapper, Role> implements Ro
             BeanUtils.copyProperties(permission, permissionResp);
             permissionRespList.add(permissionResp);
         }
-
+        List<Integer> tenantIds = roles.stream().map(Role::getTenantId).distinct().collect(Collectors.toList());
+        Map<Integer, String> tenantMap = tenantService.getTenantByIds(tenantIds);
         return roles.stream()
                 .map(role -> {
                     RoleResp resp = new RoleResp();
@@ -292,6 +302,7 @@ public class RoleServiceImpl extends ServiceImpl<RoleMapper, Role> implements Ro
                     List<Integer> curPermissionIds = rolePermissionMap.getOrDefault(role.getId(), new ArrayList<>());
                     resp.setPermissionIds(rolePermissionMap.getOrDefault(role.getId(), new ArrayList<>()));
                     resp.setPermissions(permissionRespList.stream().filter(f -> curPermissionIds.contains(f.getId())).collect(Collectors.toSet()));
+                    resp.setTenantName(tenantMap.get(role.getTenantId()));
                     return resp;
                 })
                 .collect(Collectors.toList());

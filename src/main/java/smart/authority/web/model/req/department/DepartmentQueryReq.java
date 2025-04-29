@@ -21,4 +21,10 @@ public class DepartmentQueryReq {
 
     @Schema(description = "父部门ID")
     private Integer parentId;
+
+    @Schema(description = "租户ID")
+    private Integer tenantId;
+
+    @Schema(description = "租户名称")
+    private String tenantName;
 } 

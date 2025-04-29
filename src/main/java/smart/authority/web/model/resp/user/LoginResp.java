@@ -35,4 +35,7 @@ public class LoginResp {
 
     @Schema(description = "刷新令牌")
     private String refreshToken;
+
+    @Schema(description = "租户ID")
+    private Integer tenantId;
 } 

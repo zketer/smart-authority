@@ -8,6 +8,8 @@ import smart.authority.web.model.req.tenant.TenantQueryReq;
 import smart.authority.web.model.req.tenant.TenantUpdateReq;
 import smart.authority.web.model.resp.tenant.TenantResp;
 
+import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 /**
@@ -39,4 +41,9 @@ public interface TenantService extends IService<Tenant> {
      * 分页查询租户
      */
     IPage<TenantResp> pageTenants(TenantQueryReq req);
+
+    /**
+     * 查询租户
+     */
+    Map<Integer, String> getTenantByIds(List<Integer> ids);
 }

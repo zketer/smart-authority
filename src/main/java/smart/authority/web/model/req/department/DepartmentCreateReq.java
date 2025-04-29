@@ -26,4 +26,7 @@ public class DepartmentCreateReq extends BaseReq {
     @Size(max = 255, message = "描述不能超过255个字符")
     @Schema(description = "描述")
     private String description;
+
+    @Schema(description = "租户ID")
+    private Integer tenantId;
 } 

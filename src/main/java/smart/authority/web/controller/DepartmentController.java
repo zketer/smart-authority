@@ -1,5 +1,6 @@
 package smart.authority.web.controller;
 
+import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import jakarta.validation.Valid;
 import smart.authority.common.model.ApiResponse;
@@ -41,7 +42,7 @@ public class DepartmentController {
 
     @Operation(summary = "分页查询部门")
     @GetMapping
-    public ApiResponse<Page<DepartmentResp>> pageDepartments(@Valid DepartmentQueryReq req) {
+    public ApiResponse<IPage<DepartmentResp>> pageDepartments(@Valid DepartmentQueryReq req) {
         return ApiResponse.success(departmentService.pageDepartments(req));
     }
 
