@@ -1,0 +1,65 @@
+{
+  "id": "4337634",
+  "name": "InTrain",
+  "font_family": "iconfont",
+  "css_prefix_text": "icon-",
+  "description": "",
+  "glyphs": [
+    {
+      "icon_id": "27194332",
+      "name": "箭头3",
+      "font_class": "jiantou3",
+      "unicode": "e60a",
+      "unicode_decimal": 58890
+    },
+    {
+      "icon_id": "20911544",
+      "name": "docx",
+      "font_class": "docx",
+      "unicode": "e647",
+      "unicode_decimal": 58951
+    },
+    {
+      "icon_id": "36925489",
+      "name": "013_视频播放",
+      "font_class": "a-013_shipinbofang",
+      "unicode": "e63b",
+      "unicode_decimal": 58939
+    },
+    {
+      "icon_id": "22761829",
+      "name": "文件类型-视频",
+      "font_class": "shipin",
+      "unicode": "e604",
+      "unicode_decimal": 58884
+    },
+    {
+      "icon_id": "4337514",
+      "name": "参数配置",
+      "font_class": "canshupeizhi",
+      "unicode": "e6fa",
+      "unicode_decimal": 59130
+    },
+    {
+      "icon_id": "20853372",
+      "name": "资源配置",
+      "font_class": "ziyuanpeizhi",
+      "unicode": "e6ac",
+      "unicode_decimal": 59052
+    },
+    {
+      "icon_id": "26876045",
+      "name": "分类管理",
+      "font_class": "fenleiguanli",
+      "unicode": "ea45",
+      "unicode_decimal": 59973
+    },
+    {
+      "icon_id": "18486515",
+      "name": "课程资源管理",
+      "font_class": "kechengziyuanguanli",
+      "unicode": "e7b7",
+      "unicode_decimal": 59319
+    }
+  ]
+}

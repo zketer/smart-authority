@@ -1,1 +1,0 @@
-ALTER TABLE role_permission ADD COLUMN deleted INT DEFAULT 0; 

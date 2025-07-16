@@ -1,0 +1,414 @@
+html,
+body,
+#root {
+  height: 100%;
+  margin: 0;
+  padding: 0;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial,
+    'Noto Sans', sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol',
+    'Noto Color Emoji';
+}
+
+#root {
+  overflow-y: auto;
+
+  ::-webkit-scrollbar {
+    width: 6px;
+    height: 10px;
+  }
+
+  // 滚动槽
+  ::-webkit-scrollbar-track {
+    border-radius: 10px;
+  }
+
+  // 滚动条滑块
+  ::-webkit-scrollbar-thumb {
+    background: rgba(0, 0, 0, 0.1);
+    background-clip: padding-box;
+    border: 1px dashed transparent;
+    border-radius: 10px;
+  }
+
+  ::-webkit-scrollbar-thumb:hover {
+    background: rgba(0, 0, 0, 0.15);
+  }
+}
+
+.colorWeak {
+  filter: invert(80%);
+}
+
+.__white_bg {
+  background: #FFFFFF !important;
+}
+
+.ant-layout {
+  min-height: 100vh;
+}
+
+/** ant design pro mix 布局 侧边栏样式修改 */
+.ant-layout-sider {
+  .ant-menu {
+    .ant-menu-title-content {
+      transition: color 0s;
+    }
+    //font-size: 12px !important;
+    //background: #FFFFFF !important;
+    .ant-menu-item:not(.ant-menu-item-selected):hover {
+      background: #e6f4ff;
+    }
+    .ant-menu-item-selected:hover {
+      color: #FFFFFF !important;
+    }
+    .ant-menu-submenu-title:hover:not(.ant-menu-item-selected):not(.ant-menu-submenu-selected) {
+      color: #4096ff;
+    }
+    .ant-menu-submenu-title:hover {
+      background: #e6f4ff;
+    }
+    .ant-menu-submenu-selected {
+      .ant-menu-submenu-title {
+        color: #4096ff;
+      }
+    }
+  }
+  .ant-menu {
+
+  }
+}
+
+.ant-layout-sider-collapsed {
+  .ant-menu {
+    .ant-menu-submenu-selected .ant-menu-submenu-title {
+      color: #FFFFFF !important;
+      background: #4096ff;
+    }
+  }
+}
+
+.ant-menu-submenu-popup .ant-menu-vertical {
+  //box-shadow: none !important;
+}
+//.ant-menu-submenu-popup.ant-menu-submenu {
+//  background: transparent !important;
+//}
+
+.ant-pro-top-nav-header-logo > *:first-child > img {
+  height: 52px !important;
+}
+.ant-pro-top-nav-header-main-left .ant-pro-layout-apps-icon {
+  margin-right: 0px !important;
+}
+.ant-pro-top-nav-header-logo > *:first-child > h1 {
+  font-size: 18px !important;
+}
+
+
+.ant-pro-sider.ant-layout-sider.ant-pro-sider-fixed {
+  left: unset;
+}
+
+.ant-table-small {
+  font-size: 12px !important;
+}
+
+//.ant-pro-layout .ant-pro-sider .ant-menu .ant-menu-item-selected:hover {
+//  color: #FFFFFF !important;
+//}
+
+//.ant-menu-submenu-selected {
+//  & > .ant-menu-submenu-title {
+//    color: #4096ff !important;
+//  }
+//}
+
+.ant-pro-form-login-logo {
+  width: 108px;
+  height: 56px;
+}
+
+.ant-pro-global-header-logo {
+  h1 {
+    height: 36px;
+  }
+  img {
+    width: 108px;
+    height: 56px;
+  }
+}
+
+.ant-pro-top-nav-header-logo > *:first-child > img {
+  height: 40px;
+  margin-top: 4px;
+}
+
+// 右侧设置浮窗
+.ant-pro-setting-drawer-handle {
+  top: 55px;
+  left: -100px;
+  width: 40px;
+  height: 40px;
+}
+
+canvas {
+  display: block;
+}
+
+body {
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+ul,
+ol {
+  list-style: none;
+}
+
+@media (max-width: 768px) {
+  .ant-table {
+    width: 100%;
+    overflow-x: auto;
+
+    &-thead > tr,
+    &-tbody > tr {
+      > th,
+      > td {
+        white-space: pre;
+
+        > span {
+          display: block;
+        }
+      }
+    }
+  }
+}
+
+// 头部导航
+.ant-pro-layout .ant-layout-header.ant-pro-layout-header-fixed-header {
+  z-index: 101;
+}
+
+.no-nav-m-b-tab {
+  .ant-tabs-nav {
+    margin-bottom: 0;
+  }
+}
+
+.no-padding-table {
+  & > .ant-pro-card {
+    & > .ant-pro-card-body {
+      padding-inline: 0;
+    }
+  }
+}
+
+.no-paddingLeft-table {
+  & > .ant-pro-card {
+    & > .ant-pro-card-body {
+      padding-left: 0;
+    }
+  }
+}
+
+.table-tool-bar-padding-0 {
+  .ant-pro-table-list-toolbar-container {
+    padding-block: 0;
+  }
+}
+
+.table-tool-bar-padding-top-0 {
+  .ant-pro-table-list-toolbar-container {
+    padding-top: 0;
+  }
+}
+
+//  tab的间距
+.ant-tabs-nav {
+  margin: 0 0 4px 0 !important;
+}
+
+//  往下自定义部分
+.in-title-indicate {
+  position: relative;
+  display: flex;
+  //margin-bottom: 10px;
+  justify-content: space-between;
+  width: 100%;
+  //min-height: 26px;
+  height: 26px;
+  padding-left: 10px;
+  color: @heading-color;
+  font-weight: bolder;
+  font-size: 12px;
+  line-height: 26px;
+
+  &::after {
+    position: absolute;
+    top: 15%;
+    left: 0;
+    width: 4px;
+    height: 70%;
+    //min-height: 17px;
+    background: #3d7eff;
+    border-radius: 3px;
+    content: '';
+  }
+}
+
+.edge-alignment {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+}
+
+.text-weight {
+  font-weight: 600;
+}
+
+.scrollbar-style {
+  ::-webkit-scrollbar {
+    width: 6px;
+    height: 10px;
+  }
+
+  // 滚动槽
+  ::-webkit-scrollbar-track {
+    border-radius: 10px;
+  }
+
+  // 滚动条滑块
+  ::-webkit-scrollbar-thumb {
+    background: rgba(0, 0, 0, 0.1);
+    background-clip: padding-box;
+    border: 1px dashed transparent;
+    border-radius: 10px;
+  }
+
+  ::-webkit-scrollbar-thumb:hover {
+    background: rgba(0, 0, 0, 0.15);
+  }
+}
+
+.table-scrollbar-x,
+.table-scrollbar-y {
+  ::-webkit-scrollbar {
+    width: 6px;
+    height: 10px;
+  }
+
+  // 滚动槽
+  ::-webkit-scrollbar-track {
+    border-radius: 10px;
+  }
+
+  // 滚动条滑块
+  ::-webkit-scrollbar-thumb {
+    background: rgba(0, 0, 0, 0.1);
+    background-clip: padding-box;
+    border: 1px dashed transparent;
+    border-radius: 10px;
+  }
+
+  ::-webkit-scrollbar-thumb:hover {
+    background: rgba(0, 0, 0, 0.15);
+  }
+}
+
+// table 选中样式
+.split-row-select-active {
+  background-color: #b4e5fd;
+  & > .ant-table-cell-row-hover {
+    background-color: #b4e5fd !important;
+  }
+}
+
+.cleanFix {
+  &:after {
+    display: block;
+    clear: both;
+    height: 0;
+    visibility: hidden;
+    content: '';
+  }
+}
+
+.p-l-10 {
+  padding-left: 10px;
+}
+
+.p-t-10 {
+  padding-top: 10px;
+}
+
+.p-b-10 {
+  padding-bottom: 10px;
+}
+
+.p-r-10 {
+  padding-right: 10px;
+}
+
+.m-l-10 {
+  margin-left: 10px;
+}
+
+.m-t-10 {
+  margin-top: 10px;
+}
+
+.m-b-10 {
+  margin-bottom: 10px;
+}
+
+.m-r-10 {
+  margin-right: 10px;
+}
+.__p-i-16 {
+  padding-inline: 20px !important;
+}
+
+.bjs-breadcrumbs {
+  display: none;
+}
+
+@keyframes like-module_like {
+  0% {
+    background-position: left
+  }
+
+  100% {
+    background-position: -2160px 0;
+    overflow: hidden;
+  }
+}
+
+.font12 {
+  font-size: 12px;
+}
+
+.font14 {
+  font-size: 14px;
+}
+
+.font16 {
+  font-size: 16px;
+}
+
+.font18 {
+  font-size: 18px;
+}
+
+.r-90 {
+  transform: rotate(90deg);
+}
+
+.ant-pro-form-login-logo {
+  transform: scale(1.4);
+  height: inherit;
+}
+.ant-pro-form-login-title {
+  margin-left: 6px;
+}
